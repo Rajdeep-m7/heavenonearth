@@ -20,7 +20,7 @@ export const TAGS = {
 export const REVALIDATE_SECONDS = 3600;
 
 export function bust(...tags: string[]) {
-  for (const tag of new Set(tags)) revalidateTag(tag);
+  for (const tag of new Set(tags)) revalidateTag(tag, "max");
 }
 
 /** Anything on the home page also busts the `home` tag. */
