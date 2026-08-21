@@ -5,7 +5,7 @@
  */
 
 const rawUrl =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
   "https://www.heavenonearthdestination.com";
 
 export const siteConfig = {
