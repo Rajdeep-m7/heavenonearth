@@ -1,0 +1,135 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ *
+ * Heaven on Earth — design tokens
+ * Palette sampled directly from the approved Home page design.
+ * ------------------------------------------------------------------ */
+@theme {
+  /* Brand */
+  --color-ink: #113b42; /* deep teal — headings, footer */
+  --color-ink-soft: #1c4f57;
+  --color-teal: #237977; /* primary button / testimonial band */
+  --color-teal-deep: #00605e; /* body copy on tinted panels */
+  --color-teal-700: #1c6a68;
+  --color-gold: #ffc644; /* accent, CTA */
+  --color-gold-deep: #e3a91f;
+  --color-mint: #e3faf9; /* section wash */
+  --color-ice: #e8f6f9; /* alternate card wash */
+  --color-cream: #fff3d9; /* trending band */
+  --color-charcoal: #111d1f; /* card titles */
+  --color-slate: #5b6b6d; /* muted body */
+
+  /* Type */
+  --font-display: var(--font-playfair), "Playfair Display", Georgia, serif;
+  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+
+  /* Motion */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Shadows */
+  --shadow-card: 0 18px 45px -20px rgb(17 59 66 / 0.35);
+  --shadow-lift: 0 30px 60px -25px rgb(17 59 66 / 0.45);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: #ffffff;
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.015em;
+  }
+
+  ::selection {
+    background: var(--color-gold);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-gold);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  /* Wide letter-spaced eyebrow used throughout the design */
+  .tracking-eyebrow {
+    letter-spacing: 0.32em;
+  }
+
+  /* The arch silhouette used by the trending cards.
+     Percentages keep the horizontal radii summing to exactly 100% of the
+     width, so the browser never scales the vertical radii down. */
+  .mask-arch {
+    border-radius: 50% 50% 50% 50% / 34% 34% 34% 34%;
+  }
+
+  /* Horizontal snap rails */
+  .rail {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+}
+
+/* Entrance animation used by <Reveal /> */
+@keyframes hoe-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 22px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.hoe-reveal {
+  opacity: 0;
+}
+
+.hoe-reveal[data-visible="true"] {
+  animation: hoe-rise 0.75s var(--ease-out-soft) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hoe-reveal {
+    opacity: 1;
+  }
+}
