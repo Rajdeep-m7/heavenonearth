@@ -4,9 +4,15 @@
  *
  *   npm run seed
  */
-import "dotenv/config";
+import { config as loadEnv } from "dotenv";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+
+// Next.js reads .env.local, plain Node does not — so load it explicitly, in
+// the same precedence order Next uses. Without this the script would ignore
+// the very file the docs tell you to fill in.
+loadEnv({ path: ".env.local" });
+loadEnv({ path: ".env" });
 
 import { Admin } from "../lib/db/models/Admin";
 import { Category } from "../lib/db/models/Category";
@@ -104,7 +110,7 @@ async function main() {
           isActive: true,
         },
       },
-      { upsert: true, new: true, setDefaultsOnInsert: true },
+      { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
     );
     categoryIds.set(category.slug, String(doc._id));
   }
@@ -125,7 +131,7 @@ async function main() {
           isActive: true,
         },
       },
-      { upsert: true, new: true, setDefaultsOnInsert: true },
+      { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
     );
     categoryIds.set(region.slug, String(doc._id));
   }
@@ -184,7 +190,7 @@ async function main() {
           order: index,
         },
       },
-      { upsert: true, new: true, setDefaultsOnInsert: true },
+      { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
     );
 
     const roomCount = await Room.countDocuments({ stay: stay._id });

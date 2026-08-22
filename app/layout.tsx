@@ -2,8 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Poppins } from "next/font/google";
 
 import "./globals.css";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
 import { siteConfig } from "@/lib/site";
 
 const playfair = Playfair_Display({
@@ -103,17 +101,8 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang={siteConfig.language} className={`${playfair.variable} ${poppins.variable}`}>
-      <body className="min-h-screen bg-white antialiased">
-        <a
-          href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-white"
-        >
-          Skip to content
-        </a>
-        <Header />
-        <main id="main">{children}</main>
-        <Footer />
-      </body>
+      {/* Chrome lives in app/(site)/layout.tsx so /admin does not inherit it. */}
+      <body className="min-h-screen bg-white antialiased">{children}</body>
     </html>
   );
 }

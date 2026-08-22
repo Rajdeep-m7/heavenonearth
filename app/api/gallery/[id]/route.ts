@@ -12,6 +12,18 @@ export const runtime = "nodejs";
 
 type Ctx = { params: Promise<{ id: string }> };
 
+/** Admin single-record read — the edit form's loader. */
+export const GET = handler(async (request: NextRequest, { params }: Ctx) => {
+  await requireAdmin(request);
+  const { id } = await params;
+
+  await db();
+  const doc = await GalleryItem.findById(id).lean();
+  if (!doc) return fail("NOT_FOUND", "That image no longer exists.");
+
+  return ok(doc);
+});
+
 export const PATCH = handler(async (request: NextRequest, { params }: Ctx) => {
   await requireAdmin(request);
   const { id } = await params;

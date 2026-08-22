@@ -11,6 +11,18 @@ export const runtime = "nodejs";
 
 type Ctx = { params: Promise<{ id: string }> };
 
+/** Admin single-record read — the edit form's loader. */
+export const GET = handler(async (request: NextRequest, { params }: Ctx) => {
+  await requireAdmin(request);
+  const { id } = await params;
+
+  await db();
+  const doc = await Stay.findById(id).populate("category", "name slug").lean();
+  if (!doc) return fail("NOT_FOUND", "That stay no longer exists.");
+
+  return ok(doc);
+});
+
 export const PATCH = handler(async (request: NextRequest, { params }: Ctx) => {
   await requireAdmin(request);
   const { id } = await params;

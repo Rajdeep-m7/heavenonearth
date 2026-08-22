@@ -231,6 +231,24 @@ export const uploadSignature = z.object({
   folder: z.enum(["categories", "packages", "stays", "rooms", "gallery", "reviews"]),
 });
 
+/** 12+ characters everywhere a password is set — matches scripts/seed.ts and scripts/add-admin.ts. */
+const adminPassword = z.string().min(12, "At least 12 characters");
+
+export const adminUserCreate = z.object({
+  email: z.string().email("Enter a valid email"),
+  password: adminPassword,
+  name: z.string().min(2, "At least 2 characters").max(80),
+  role: z.enum(["owner", "editor"]).default("editor"),
+});
+
+export const adminUserUpdate = z.object({
+  name: z.string().min(2).max(80).optional(),
+  role: z.enum(["owner", "editor"]).optional(),
+  isActive: z.boolean().optional(),
+  // Optional: omitting it leaves the existing password untouched.
+  password: adminPassword.optional(),
+});
+
 /* ------------------------------------------------------------------ */
 /* Shared list query                                                   */
 /* ------------------------------------------------------------------ */

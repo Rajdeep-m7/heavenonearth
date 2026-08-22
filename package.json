@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "admin:add": "tsx scripts/add-admin.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
