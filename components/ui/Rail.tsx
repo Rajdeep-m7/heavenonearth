@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, Children } from "react";
 
 import { ChevronLeft, ChevronRight } from "@/components/ui/Icons";
 
@@ -24,7 +24,7 @@ const toneClasses: Record<NonNullable<RailProps["tone"]>, string> = {
 /**
  * Horizontal scroll rail with snap points. Native scrolling keeps touch,
  * trackpad and keyboard behaviour intact; the arrows are progressive
- * enhancement on top.
+ * enhancement on top. On mobile, it auto-slides and shows pagination dots.
  */
 export function Rail({
   children,
@@ -37,6 +37,11 @@ export function Rail({
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
   const [overflowing, setOverflowing] = useState(false);
+  
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  const count = Children.count(children);
 
   const sync = useCallback(() => {
     const el = ref.current;
@@ -45,7 +50,19 @@ export function Rail({
     setOverflowing(max > 8);
     setAtStart(el.scrollLeft <= 8);
     setAtEnd(el.scrollLeft >= max - 8);
-  }, []);
+    
+    setIsMobile(window.innerWidth < 768);
+
+    if (count > 0 && max > 8) {
+      const percentage = el.scrollLeft / max;
+      let index = Math.round(percentage * (count - 1));
+      if (index < 0) index = 0;
+      if (index >= count) index = count - 1;
+      setActiveIndex(index);
+    } else {
+      setActiveIndex(0);
+    }
+  }, [count]);
 
   useEffect(() => {
     const el = ref.current;
@@ -60,6 +77,56 @@ export function Rail({
     };
   }, [sync]);
 
+  // Auto-slide effect for mobile
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    const startAutoSlide = () => {
+      interval = setInterval(() => {
+        if (window.innerWidth >= 768) return; // Only auto-slide on mobile screens
+        
+        const el = ref.current;
+        if (!el) return;
+        
+        const max = el.scrollWidth - el.clientWidth;
+        if (max <= 8) return; // Content fits, no need to scroll
+
+        if (el.scrollLeft >= max - 8) {
+          // If at the end, smoothly rewind to the start
+          el.scrollTo({ left: 0, behavior: "smooth" });
+        } else {
+          // Scroll forward by roughly one card width
+          el.scrollBy({ left: el.clientWidth * 0.82, behavior: "smooth" });
+        }
+      }, 3500); // 3.5 seconds
+    };
+
+    startAutoSlide();
+
+    const pause = () => clearInterval(interval);
+    const resume = () => {
+      clearInterval(interval);
+      startAutoSlide();
+    };
+
+    const el = ref.current;
+    if (el) {
+      el.addEventListener("touchstart", pause, { passive: true });
+      el.addEventListener("touchend", resume, { passive: true });
+      el.addEventListener("mouseenter", pause);
+      el.addEventListener("mouseleave", resume);
+    }
+
+    return () => {
+      clearInterval(interval);
+      if (el) {
+        el.removeEventListener("touchstart", pause);
+        el.removeEventListener("touchend", resume);
+        el.removeEventListener("mouseenter", pause);
+        el.removeEventListener("mouseleave", resume);
+      }
+    };
+  }, []);
+
   const scrollBy = (direction: -1 | 1) => {
     const el = ref.current;
     if (!el) return;
@@ -69,19 +136,6 @@ export function Rail({
   const showControls = !hideControlsWhenFull || overflowing;
 
   return (
-    /*
-      `overflow-x-clip` is load-bearing, not cosmetic.
-
-      The inner scroller already clips its own paint, but Chrome still counts
-      its scrollable content in every ancestor's scrollWidth — which pushed
-      document.scrollWidth to 815px on a 360px viewport. Desktop browsers hide
-      that (the page refuses to scroll sideways), but a real phone widens the
-      layout viewport to fit and zooms the whole page out: the classic
-      "site isn't responsive" symptom.
-
-      `clip` rather than `hidden` because clip leaves the vertical axis
-      `visible`, so card hover-lift and drop shadows still escape the box.
-    */
     <div className="relative overflow-x-clip">
       <div
         ref={ref}
@@ -93,6 +147,7 @@ export function Rail({
         {children}
       </div>
 
+      {/* Desktop prev/next controls */}
       {showControls && (
         <>
           <button
@@ -114,6 +169,31 @@ export function Rail({
             <ChevronRight className="size-5" />
           </button>
         </>
+      )}
+
+      {/* Mobile dots pagination */}
+      {showControls && isMobile && count > 1 && (
+        <div className="mt-6 flex items-center justify-center gap-2 md:hidden">
+          {Array.from({ length: count }).map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              aria-label={`Go to slide ${i + 1}`}
+              onClick={() => {
+                const el = ref.current;
+                if (!el) return;
+                const max = el.scrollWidth - el.clientWidth;
+                const target = (max / (count - 1)) * i;
+                el.scrollTo({ left: target, behavior: "smooth" });
+              }}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                activeIndex === i
+                  ? tone === "gold" ? "w-6 bg-gold" : "w-6 bg-teal"
+                  : "w-2 bg-black/15"
+              }`}
+            />
+          ))}
+        </div>
       )}
     </div>
   );

@@ -228,7 +228,7 @@ export const adminLogin = z.object({
 });
 
 export const uploadSignature = z.object({
-  folder: z.enum(["categories", "packages", "stays", "rooms", "gallery", "reviews"]),
+  folder: z.enum(["categories", "packages", "stays", "rooms", "gallery", "reviews", "trending"]),
 });
 
 /** 12+ characters everywhere a password is set — matches scripts/seed.ts and scripts/add-admin.ts. */
@@ -248,6 +248,22 @@ export const adminUserUpdate = z.object({
   // Optional: omitting it leaves the existing password untouched.
   password: adminPassword.optional(),
 });
+
+/* ------------------------------------------------------------------ */
+/* Trending                                                            */
+/* ------------------------------------------------------------------ */
+
+export const trendingCreate = z.object({
+  tab: z.enum(["international", "india"]),
+  name: z.string().min(2).max(60),
+  slug: slug,
+  style: z.enum(["caps", "italic", "title"]).default("title"),
+  image: cloudinaryImage,
+  order: z.number().int().default(0),
+  isActive: z.boolean().default(true),
+});
+
+export const trendingUpdate = trendingCreate.partial();
 
 /* ------------------------------------------------------------------ */
 /* Shared list query                                                   */

@@ -17,7 +17,7 @@ export type AdminImage = {
 const MAX_BYTES = 10 * 1024 * 1024;
 
 type Props = {
-  folder: "categories" | "packages" | "stays" | "rooms" | "gallery" | "reviews";
+  folder: "categories" | "packages" | "stays" | "rooms" | "gallery" | "reviews" | "trending";
   value: AdminImage | null;
   onChange: (image: AdminImage | null) => void;
   label?: string;

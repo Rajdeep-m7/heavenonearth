@@ -10,7 +10,7 @@ export function Footer() {
   return (
     <footer className="bg-ink text-white/85">
       <div className="mx-auto max-w-[1200px] px-6 pb-10 pt-16 sm:px-8 lg:pt-24">
-        <div className="grid gap-12 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)]">
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]">
           <div>
             <Link href="/" className="flex items-center gap-4">
               <Image
@@ -48,6 +48,7 @@ export function Footer() {
           </div>
 
           <FooterColumn title="Explore" links={footerLinks.explore} />
+          <FooterColumn title="Services" links={footerLinks.services} />
           <FooterColumn title="Company" links={footerLinks.company} />
         </div>
 

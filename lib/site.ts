@@ -64,7 +64,8 @@ export const absoluteUrl = (path = "/") =>
 export const navLinks = [
   { label: "Home", href: "/" },
   { label: "Destinations", href: "/destinations" },
-  { label: "HomeStays", href: "/homestays" },
+  { label: "HomeStays", href: "/stays" },
+  { label: "Gallery", href: "/gallery" },
   { label: "About us", href: "/about" },
   { label: "Reviews", href: "/reviews" },
 ] as const;
@@ -72,9 +73,15 @@ export const navLinks = [
 export const footerLinks = {
   explore: [
     { label: "Destinations", href: "/destinations" },
-    { label: "Homestays", href: "/homestays" },
-    { label: "Travel Styles", href: "/travel-styles" },
+    { label: "Homestays", href: "/stays" },
     { label: "Curated Trips", href: "/packages" },
+    { label: "Gallery", href: "/gallery" },
+  ],
+  services: [
+    { label: "Flights", href: "/flights" },
+    { label: "Private Cars", href: "/cars" },
+    { label: "Trains", href: "/trains" },
+    { label: "Reviews", href: "/reviews" },
   ],
   company: [
     { label: "Our Story", href: "/about" },

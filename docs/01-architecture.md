@@ -33,14 +33,12 @@ app/
 │  ├─ packages/
 │  │  ├─ page.tsx              All packages, filterable
 │  │  └─ [slug]/page.tsx       One package detail
-│  ├─ stays/                   room stays
+│  ├─ stays/                   room stays — catalog only, no availability engine
 │  │  ├─ page.tsx
-│  │  └─ [slug]/page.tsx       property + bookable rooms
-│  ├─ cars/                    car rentals
-│  │  ├─ page.tsx
-│  │  └─ [slug]/page.tsx
-│  ├─ booking/                 4-step guest flow — noindex, no login
-│  │  └─ [type]/…              stay | car | package
+│  │  └─ [slug]/page.tsx       property + rooms, each with a WhatsApp CTA
+│  ├─ flights/page.tsx         what the business arranges + one WhatsApp button
+│  ├─ cars/page.tsx
+│  ├─ trains/page.tsx
 │  ├─ gallery/page.tsx
 │  ├─ reviews/page.tsx
 │  └─ contact/page.tsx
@@ -50,32 +48,32 @@ app/
 │  ├─ page.tsx                 dashboard
 │  ├─ categories/…             master packages CRUD
 │  ├─ packages/…               packages CRUD
-│  ├─ stays/…                  stays + nested rooms + blackouts
-│  ├─ vehicles/…               cars + routes/fares
-│  ├─ bookings/…               booking queue & payment status
+│  ├─ stays/…                  stays + nested rooms
+│  ├─ users/…                  owner-only — manage other admins
 │  ├─ reviews/…                moderate + create
 │  └─ gallery/…                gallery CRUD
 │
 └─ api/
    ├─ categories/…             GET public · POST/PATCH/DELETE admin
    ├─ packages/…               GET public · POST/PATCH/DELETE admin
-   ├─ stays/…                  GET public (+ /availability) · admin CRUD
-   ├─ rooms/…                  admin CRUD · blackouts
-   ├─ vehicles/…               GET public (+ /quote) · admin CRUD
-   ├─ routes/…                 GET public · admin CRUD
-   ├─ bookings/…               POST public · GET by reference+email
+   ├─ stays/…                  GET public · admin CRUD
+   ├─ rooms/…                  admin CRUD
    ├─ reviews/…                GET public (approved only) · POST public (pending) · admin moderation
    ├─ gallery/…                GET public · admin CRUD
    └─ admin/
       ├─ auth/login            POST — issues the cookie
       ├─ auth/logout           POST
       ├─ auth/me               GET
-      ├─ bookings/…            GET/PATCH — admin booking management
+      ├─ users/…               GET/POST/PATCH/DELETE — owner-only admin management
       └─ upload/signature      POST — signs a direct-to-Cloudinary upload
 ```
 
-Stays, cars and the booking flow are specified in
-[`06-stays-cars-bookings.md`](./06-stays-cars-bookings.md).
+Stays and the WhatsApp-handoff pattern used by every "Book" / "Enquire"
+action are specified in
+[`06-stays-cars-bookings.md`](./06-stays-cars-bookings.md). **Nobody books or
+pays on the site** — every such action opens a pre-filled WhatsApp chat with
+the owner instead. There is no `Booking` model, no `TravelRequest` model, no
+payment status, no reference codes.
 
 `middleware.ts` protects `/admin/*` and `/api/admin/*` (login excluded).
 
@@ -108,19 +106,19 @@ Category (master package)          Package
 point at a package or category so the same records can power both a global
 `/reviews` page and a per-package review block.
 
-The stay and car modules hang off the same `Category` spine:
+The stay module hangs off the same `Category` spine. There is no booking or
+enquiry collection at all — `Stay` and `Room` exist purely to be displayed;
+the action next to them is a `wa.me` link, not a database write:
 
 ```
 Category ──┬── Package
-           ├── Stay ──── Room ──── RoomBlackout
-           └── (Vehicle is category-independent; grouped by operatingRegions)
+           └── Stay ──── Room
 
-Booking ──► one of { Package | Room | Vehicle }   ·  guest, no account
+  every "Book" / "Enquire" button ──► wa.me/<phone>?text=<prefilled message>
 ```
 
-`Booking` is a single collection with a `type` discriminator
-(`stay` / `car` / `package`) rather than three parallel collections — one admin
-queue, one status machine, one reference-code scheme.
+Flights, cars, and trains have no model whatsoever — `/flights`, `/cars`,
+`/trains` are static-ish pages with one WhatsApp button each.
 
 ---
 
@@ -175,12 +173,10 @@ heavenonearth/
 ├─ lib/
 │  ├─ db/
 │  │  ├─ connect.ts      cached Mongoose connection  ← critical for serverless
-│  │  └─ models/         Category, Package, Stay, Room, RoomBlackout,
-│  │                     Vehicle, Route, Booking, Review, GalleryItem, Admin
+│  │  └─ models/         Category, Package, Stay, Room, Review, GalleryItem, Admin
 │  ├─ auth/              jwt.ts (sign/verify), password.ts (bcrypt), session.ts
 │  ├─ cloudinary/        server.ts (signature), loader.ts (next/image loader)
-│  ├─ pricing/           vehicle.ts, stay.ts — pure, unit-tested quote engines
-│  ├─ booking/           availability.ts, reference.ts
+│  ├─ whatsapp.ts        builds the wa.me links every "Book"/"Enquire" CTA uses
 │  ├─ validation/        Zod schemas — shared by API routes and admin forms
 │  ├─ api/               respond.ts (uniform JSON envelope), errors.ts
 │  ├─ seo/schema.ts      built — JSON-LD graph

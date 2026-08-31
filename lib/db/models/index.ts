@@ -11,3 +11,4 @@ export { Package, type PackageDoc } from "./Package";
 export { Review, type ReviewDoc, aggregateRating } from "./Review";
 export { Room, type RoomDoc, syncStayPriceFrom } from "./Room";
 export { Stay, type StayDoc } from "./Stay";
+export { Trending, type TrendingDoc } from "./Trending";

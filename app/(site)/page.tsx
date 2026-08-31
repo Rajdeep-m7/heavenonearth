@@ -10,6 +10,7 @@ import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 import { FinalCta } from "@/components/home/FinalCta";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { getHomeData } from "@/lib/queries/home";
+import { getTrendingData } from "@/lib/queries/trending";
 import { buildHomeGraph } from "@/lib/seo/schema";
 import { siteConfig } from "@/lib/site";
 
@@ -34,14 +35,17 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const data = await getHomeData();
+  const [data, trendingData] = await Promise.all([
+    getHomeData(),
+    getTrendingData()
+  ]);
 
   return (
     <>
       <JsonLd id="home-jsonld" data={buildHomeGraph(data)} />
       <Hero rating={data.rating} />
       <RegionsSection regions={data.regions} />
-      <TrendingSection />
+      <TrendingSection data={trendingData} />
       <JourneysSection journeys={data.journeys} />
       <HomestaysSection stays={data.stays} />
       <StorySection />

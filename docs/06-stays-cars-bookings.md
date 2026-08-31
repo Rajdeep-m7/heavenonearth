@@ -1,20 +1,95 @@
-# Room stays, car rentals & bookings
+# Room stays & WhatsApp enquiries
 
-Three more admin-managed entities and the guest booking flow that sits on top
-of them. Everything here follows the conventions already set in
-[`02-data-model.md`](./02-data-model.md) and
-[`03-api-reference.md`](./03-api-reference.md) — same `CloudinaryImage`
-sub-document, same response envelope, same cache-tag discipline.
+**Nobody books or pays on the website.** For stays, packages, and every
+travel service, the site's job stops at getting a qualified visitor into a
+WhatsApp chat with the owner — the actual coordination, quoting, and
+confirmation all happen there. This is a deliberate fit to how the business
+already operates (the WhatsApp icon is already in the header's social rail),
+not a placeholder for a future checkout flow.
 
-**Guests never log in.** A booking is identified by a generated reference code
-plus the guest's email/phone.
+Concretely, this means the site has:
+
+- **No `Booking` model, no payment status, no reference codes, no 4-step
+  guest flow.** All of that was speced in an earlier draft of this doc and is
+  now dropped — there is nothing to build.
+- **No `TravelRequest` model or admin queue for flights/cars/trains either.**
+  A database-backed enquiry form was the previous plan; a WhatsApp button is
+  simpler, matches reality (the business has no live fares to quote from
+  regardless), and needs zero backend.
+- **One small, reusable piece of new code:** a WhatsApp link builder, used
+  everywhere a "Book" or "Enquire" action would otherwise be.
+
+Room stays (`Stay` → `Room`) stay exactly as already built — they are the
+**catalog**, not a booking engine. A stay/room page shows what is on offer and
+its price; the call to action next to it opens WhatsApp instead of a
+checkout.
 
 ---
 
-## Part A — Room stays
+## Part A — The WhatsApp handoff
 
-Modelled as **Stay** (the property) → **Room** (what is actually bookable).
-A homestay with three room types is one `Stay` and three `Room` documents.
+### The pattern
+
+Every "Book this stay", "Enquire about this room", "Ask about this package",
+or "Plan a flight / car / train" button on the public site is a plain link:
+
+```
+https://wa.me/<phone>?text=<url-encoded message>
+```
+
+No form submission, no API call, no record created. `<phone>` is
+`siteConfig.phone` (already defined in `lib/site.ts`); the message is built
+client-side from whatever the visitor is looking at.
+
+### `lib/whatsapp.ts` (to build)
+
+```ts
+import { siteConfig } from "@/lib/site";
+
+export function whatsappLink(message: string): string {
+  const phone = siteConfig.phone.replace(/[^\d]/g, ""); // wa.me wants digits only
+  return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+}
+
+// A few callers, so the phrasing stays consistent site-wide:
+export const whatsappForPackage = (title: string, url: string) =>
+  whatsappLink(`Hi! I'm interested in the "${title}" package (${url}). Could you share more details?`);
+
+export const whatsappForRoom = (stayName: string, roomName: string, url: string) =>
+  whatsappLink(`Hi! I'd like to ask about the ${roomName} at ${stayName} (${url}).`);
+
+export const whatsappForService = (service: "flight" | "car" | "train") =>
+  whatsappLink(`Hi! I'd like help arranging a ${service}.`);
+```
+
+### `components/ui/WhatsAppButton.tsx` (to build)
+
+A thin wrapper around an `<a>` tag — `target="_blank" rel="noopener noreferrer"`,
+the WhatsApp icon already in `components/ui/Icons.tsx`, styled to match the
+gold/teal CTA treatment already used elsewhere (`Hero`, `FinalCta`). Takes the
+pre-built `href` from one of the helpers above; it has no logic of its own.
+
+### Where it appears
+
+| Page | Button text | Message includes |
+| --- | --- | --- |
+| Package detail | "Enquire on WhatsApp" | package title + page URL |
+| Stay detail, per room | "Ask About This Room" | stay name + room name + page URL |
+| `/flights`, `/cars`, `/trains` | "Chat With Us on WhatsApp" | which service, nothing else — the conversation fills in the rest |
+| Home page final CTA | "Start Planning" (already built) | generic — already links to `siteConfig.social.whatsapp`, unchanged |
+
+`/flights`, `/cars`, and `/trains` are now simple static-ish pages: a short
+description of what the business arranges, maybe a few example routes or
+price ranges for orientation, and one WhatsApp button. No form fields, no
+`type` discriminator, nothing to validate.
+
+---
+
+## Part B — Room stays (unchanged — already built)
+
+Kept here for reference; nothing in this section changed by the WhatsApp
+decision. `lib/db/models/Stay.ts` and `lib/db/models/Room.ts` are already
+implemented exactly as described below.
 
 ### `Stay`
 
@@ -37,9 +112,10 @@ A homestay with three room types is one `Stay` and three `Room` documents.
 | `order` | Number | |
 | `seo` | `{ title, description, keywords[] }` | |
 
-`priceFrom` is denormalised on purpose: listing pages would otherwise need a
-join or an aggregation per card. It is recalculated in the same transaction as
-any room create/update/delete, so it cannot drift.
+`priceFrom` exists purely for **display** now — "from ₹6,500/night" on a card
+— not to drive an availability check. It is still recalculated on every room
+create/update/delete via `syncStayPriceFrom()`, because it would otherwise
+drift and show a stale price.
 
 **Indexes:** `{ slug: 1 }` unique · `{ isActive: 1, order: 1 }` ·
 `{ category: 1, isActive: 1 }` · `{ isFeatured: 1, isActive: 1 }`
@@ -54,278 +130,50 @@ any room create/update/delete, so it cannot drift.
 | `maxAdults` / `maxChildren` | Number, required / default 0 | |
 | `bedType` | String | "1 King" |
 | `sizeSqft` | Number | |
-| `pricePerNight` | Number, required, min 0 | base rate |
-| `extraGuestCharge` | Number, default 0 | per extra guest per night |
-| `totalUnits` | Number, required, min 1 | how many of this room exist |
+| `pricePerNight` | Number, required, min 0 | shown on the card; not enforced against anything |
+| `extraGuestCharge` | Number, default 0 | informational |
+| `totalUnits` | Number, required, min 1 | informational — the business's own count, not tracked against bookings since the site does not take any |
 | `amenities` | [String] | |
 | `images` | [CloudinaryImage] | |
 | `isActive` | Boolean, default `true` | |
 
 **Indexes:** `{ stay: 1, isActive: 1 }`
 
-### Availability — the deliberately simple version
-
-v1 does **not** run a channel manager. Availability is derived:
-
-```
-unitsFree(room, from, to) =
-  room.totalUnits
-  − confirmedBookingsOverlapping(room, from, to)
-  − blackoutUnits(room, from, to)
-```
-
-`RoomBlackout` `{ room, from, to, units, reason }` lets an admin close rooms for
-maintenance or an offline booking. Overlap test is the standard
-`from < existing.to && to > existing.from`.
-
-This is honest about its limits: it is correct for a single-source-of-truth
-property, and it is not a replacement for OTA sync. Concurrency is handled at
-booking time (see Part C).
+There is deliberately **no availability engine, no `RoomBlackout` model, no
+double-booking prevention** — all of that only matters when the site itself
+confirms a reservation against a shrinking pool of units, which it does not.
+If a returning need for real-time availability shows up later (e.g., a
+channel-manager integration), it is a clean addition on top of this same
+`Room` shape — nothing here blocks it.
 
 ---
 
-## Part B — Car rentals
-
-### `Vehicle`
-
-| Field | Type | Notes |
-| --- | --- | --- |
-| `name` | String, required | "Toyota Innova Crysta" |
-| `slug` | String, required, **unique** | |
-| `vehicleType` | enum `hatchback` \| `sedan` \| `suv` \| `tempoTraveller` \| `bus` | |
-| `seats` | Number, required | excludes the driver |
-| `luggage` | Number | large bags |
-| `transmission` | enum `manual` \| `automatic` | |
-| `fuel` | enum `petrol` \| `diesel` \| `cng` \| `electric` | |
-| `hasAC` | Boolean, default `true` | |
-| `features` | [String] | "Carrier", "Pushback seats" |
-| `coverImage` | CloudinaryImage, required | |
-| `images` | [CloudinaryImage] | |
-| **Pricing** | | |
-| `pricingMode` | enum `perDay` \| `perKm` \| `both`, required | |
-| `pricePerDay` | Number | required when mode includes `perDay` |
-| `includedKmPerDay` | Number | e.g. 250 |
-| `pricePerKm` | Number | required when mode includes `perKm` |
-| `extraKmCharge` | Number | beyond `includedKmPerDay` |
-| `driverAllowancePerDay` | Number, default 0 | |
-| `minimumBillingKmPerDay` | Number | common in hill routes |
-| `operatingRegions` | [String], indexed | "Darjeeling", "Sikkim" |
-| `totalUnits` | Number, required, min 1 | fleet count |
-| `isFeatured` / `isActive` | Boolean | |
-| `order` | Number | |
-
-Zod refines the pricing block so `perDay` cannot be saved without
-`pricePerDay` — invalid rate cards are rejected at the edge, not discovered at
-quote time.
-
-**Indexes:** `{ slug: 1 }` unique · `{ isActive: 1, order: 1 }` ·
-`{ vehicleType: 1, isActive: 1 }` · `{ operatingRegions: 1, isActive: 1 }`
-
-### `Route` (optional, admin-managed)
-
-Fixed point-to-point fares, which is how most hill-station transfers are
-actually sold.
-
-| Field | Type |
-| --- | --- |
-| `from` / `to` | String, required |
-| `distanceKm` / `approxHours` | Number |
-| `fares` | `[{ vehicle: ObjectId → Vehicle, price: Number }]` |
-| `isActive` | Boolean |
-
-**Index:** `{ from: 1, to: 1, isActive: 1 }`
-
-### Quote calculation
-
-Pure function in `lib/pricing/vehicle.ts`, unit-tested, used by both the public
-quote endpoint and the admin booking screen so a customer and an admin can
-never see different numbers:
-
-```
-perDay :  days × pricePerDay
-        + driverAllowancePerDay × days
-        + max(0, estimatedKm − includedKmPerDay × days) × extraKmCharge
-
-perKm  :  max(estimatedKm, minimumBillingKmPerDay × days) × pricePerKm
-        + driverAllowancePerDay × days
-
-route  :  the fixed fare for (from, to, vehicle)
-```
-
-The response returns a **line-item breakdown**, never a bare total, so the
-booking screen can show its working.
-
----
-
-## Part C — Bookings
-
-One `Booking` collection covers all three products. A discriminator field keeps
-the shared fields (guest, status, totals, reference) in one place while the
-product-specific block varies.
-
-### `Booking`
-
-| Field | Type | Notes |
-| --- | --- | --- |
-| `reference` | String, **unique**, indexed | `HOE-8F3K2Q` — what the guest quotes |
-| `type` | enum `stay` \| `car` \| `package`, required | |
-| `guest` | `{ name, email, phone, altPhone, notes }` | required |
-| `guestCount` | `{ adults, children }` | |
-| **`stayDetails`** | when `type = "stay"` | `{ stay, room, checkIn, checkOut, nights, units }` |
-| **`carDetails`** | when `type = "car"` | `{ vehicle, route?, pickupAt, dropAt, pickupLocation, dropLocation, estimatedKm, days }` |
-| **`packageDetails`** | when `type = "package"` | `{ package, startDate, travellers }` |
-| `pricing` | `{ lineItems: [{ label, amount }], subtotal, taxes, discount, total, currency }` | snapshot — see below |
-| `status` | enum `pending` \| `confirmed` \| `cancelled` \| `completed`, default `pending` | |
-| `payment` | `{ status: unpaid\|partial\|paid, method, amountPaid, transactionId, paidAt }` | |
-| `adminNotes` | String, `select: false` | internal only |
-| `source` | enum `web` \| `admin`, default `web` | |
-
-**Indexes**
-
-```ts
-{ reference: 1 }                                    // unique
-{ status: 1, createdAt: -1 }                        // admin queue
-{ "stayDetails.room": 1, "stayDetails.checkIn": 1, "stayDetails.checkOut": 1 }
-{ "carDetails.vehicle": 1, "carDetails.pickupAt": 1 }
-{ "guest.email": 1 }                                // guest lookup
-```
-
-### Pricing is a snapshot, not a reference
-
-`pricing.lineItems` stores the resolved amounts at booking time. If the admin
-raises the room rate tomorrow, an existing booking still shows what the guest
-agreed to. Recomputing from live rates would silently rewrite history — this is
-the single most important correctness decision in this module.
-
-The server **always recomputes** the quote from the database before saving and
-ignores any total sent by the client. The browser's number is a display
-convenience; the server's number is the price.
-
-### Preventing double-booking
-
-Between "check availability" and "save booking" another guest can take the last
-room. Handled with a conditional write rather than a read-then-write:
-
-1. Recompute `unitsFree` inside the write path.
-2. Insert only if still available, using a guarded `findOneAndUpdate` on a small
-   `InventoryLock` document keyed by `(room, date)` — or, on a replica-set
-   Atlas cluster, a short transaction around the count-and-insert.
-3. On failure return `409 NO_AVAILABILITY` with the dates that conflict.
-
-M0 clusters are replica sets, so transactions are available. The guarded-update
-path is the fallback if the deployment ever moves to a standalone instance.
-
----
-
-## Part D — API routes
-
-### Public
-
-| Method | Route | Notes |
-| --- | --- | --- |
-| `GET` | `/api/stays` | filters: `category`, `propertyType`, `locality`, `featured`, `q`, `page`, `limit` |
-| `GET` | `/api/stays/[slug]` | property + its active rooms |
-| `GET` | `/api/stays/[slug]/availability?from=&to=&adults=&children=` | per-room `unitsFree` + a per-room price for the range |
-| `GET` | `/api/vehicles` | filters: `vehicleType`, `seats` (min), `region`, `featured`, `page`, `limit` |
-| `GET` | `/api/vehicles/[slug]` | |
-| `POST` | `/api/vehicles/quote` | `{ vehicle, pickupAt, dropAt, estimatedKm, route? }` → line-item breakdown |
-| `GET` | `/api/routes?from=&to=` | fixed fares |
-| `POST` | `/api/bookings` | **unauthenticated** — creates a `pending` booking |
-| `GET` | `/api/bookings/[reference]?email=` | guest self-service; requires the matching email, returns a redacted view |
-
-### Admin
-
-| Method | Route |
-| --- | --- |
-| `POST` `PATCH` `DELETE` | `/api/stays`, `/api/stays/[id]` |
-| `POST` `PATCH` `DELETE` | `/api/stays/[stayId]/rooms`, `/api/rooms/[id]` |
-| `POST` `DELETE` | `/api/rooms/[id]/blackouts` |
-| `POST` `PATCH` `DELETE` | `/api/vehicles`, `/api/vehicles/[id]` |
-| `POST` `PATCH` `DELETE` | `/api/routes`, `/api/routes/[id]` |
-| `GET` `PATCH` | `/api/admin/bookings`, `/api/admin/bookings/[id]` — status, payment, notes |
-| `POST` | `/api/admin/bookings` — admin-created (walk-in / phone) booking |
-
-**New cache tags:** `stays`, `stay:<slug>`, `vehicles`, `vehicle:<slug>`,
-`routes`. Bookings are **never** cached — those routes export
-`dynamic = "force-dynamic"`.
-
----
-
-## Part E — Guest booking flow
-
-This maps to the supplied `HomeStay-Booking` / `Step-1…Step-4` screens.
-
-```
-Stay detail ─► pick dates + room ─► Step 1  Guest details
-                                    Step 2  Re-check (itemised summary)
-                                    Step 3  Payment
-                                    Step 4  Confirmation + reference code
-```
-
-- **Draft state lives in the URL + `sessionStorage`**, not the database. No
-  abandoned-cart rows, no cleanup job, and a refresh does not lose the form.
-- **Step 2 re-validates against the server.** Availability and price are fetched
-  again; if either moved, the guest is told before they reach payment rather
-  than after.
-- **Step 3 — payment.** v1 ships **`payLater`**: the booking is created as
-  `pending` / `unpaid` and the team confirms by phone. This keeps the free-tier
-  deployment free of PCI surface and of a payment provider's webhook
-  requirements.
-  The `payment` sub-document and a `lib/payments/provider.ts` interface are in
-  place so a Razorpay (or Stripe) integration is an additive change: implement
-  `createOrder` / `verifySignature`, add one webhook route. **Flagging this
-  clearly: online payment is not in v1.** If it is required for launch, say so
-  and it moves into scope with its own doc.
-- **Step 4** shows the reference code and sends two emails (guest confirmation,
-  admin notification) via Resend's free tier. Email failure is logged but never
-  fails the booking — the record already exists.
-
-The car booking flow is the same four steps with a vehicle/route/date form in
-place of the room picker.
-
----
-
-## Part F — Admin screens
-
-| Screen | Contents |
-| --- | --- |
-| **Stays** | table (name, locality, rooms, `priceFrom`, active); editor with amenities chips, image uploader, and a nested **Rooms** panel |
-| **Rooms** (inside a stay) | inline rows: name, occupancy, rate, units, active; blackout-date manager per room |
-| **Vehicles** | table (name, type, seats, rate); editor whose pricing block switches fields on `pricingMode` |
-| **Routes** | from → to, distance, per-vehicle fare grid |
-| **Bookings** | tabs Pending / Confirmed / Cancelled / Completed; filter by type and date; detail drawer showing the frozen line items, with actions to confirm, cancel, record payment, add notes |
-
-The **Dashboard** gains: today's check-ins, today's pickups, and a pending
-bookings count badge.
-
----
-
-## Part G — SEO additions
-
-New JSON-LD nodes, wired into the existing `@graph` in `lib/seo/schema.ts`:
+## Part C — SEO
 
 - `Stay` → **`LodgingBusiness`** with `address`, `geo`, `amenityFeature`,
-  `checkinTime`, `priceRange`, and `makesOffer` for each room.
-- `Vehicle` → **`Product`** + `Offer`, plus `Service` with `areaServed` drawn
-  from `operatingRegions`.
-- `Route` → **`Service`** with `serviceType: "Taxi service"`.
-- New `ItemList` nodes for `/stays` and `/cars`.
+  `checkinTime`, `priceRange`, and `makesOffer` for each room — unchanged.
+  `Offer` has no `availability` field populated (schema.org allows omitting
+  it); a WhatsApp CTA does not need one.
+- `/flights`, `/cars`, `/trains` are ordinary indexable pages (good for
+  "Darjeeling airport transfers", "train travel arranged from NJP" searches),
+  marked up as `Service` with `areaServed`. Nothing about them is `noindex` —
+  unlike the dropped `TravelRequest` confirmation screen, there is no
+  guest-specific page to keep out of search results anymore.
 
-Sitemap gains `/stays`, `/stays/[slug]`, `/cars`, `/cars/[slug]`.
-`/booking/*` and `/admin/*` stay `noindex`.
+Sitemap gains `/stays`, `/stays/[slug]`, `/flights`, `/cars`, `/trains`.
 
 ---
 
-## Part H — Build order
+## Part D — Build order
 
-1. `Stay` + `Room` models, admin CRUD, public list + detail — reuses the
-   existing homestay UI, which currently reads from `lib/data/homestays.ts`.
-2. Availability endpoint + `RoomBlackout`.
-3. `Vehicle` + `Route` models, admin CRUD, public list + detail.
-4. Quote engine + unit tests.
-5. `Booking` model, public 4-step flow, admin bookings queue.
-6. Emails, then JSON-LD and sitemap entries.
+1. `Stay` + `Room` models, admin CRUD, public list + detail — **already
+   built**.
+2. `lib/whatsapp.ts` + `WhatsAppButton` component.
+3. Public `/stays` + `/stays/[slug]` pages, with a `WhatsAppButton` per room.
+4. `/flights`, `/cars`, `/trains` — one shared layout, three copy blocks, one
+   button each.
+5. Wire the same button into package detail once `/packages/[slug]` exists.
+6. JSON-LD + sitemap entries from Part C.
 
-Steps 1–3 are pure CRUD and mirror the packages module closely. Steps 4–5 hold
-the only genuinely novel logic — pricing and concurrency — and deserve the
-tests.
+This is now the smallest module in the project — steps 2–4 are an afternoon,
+not the multi-day build the booking-engine version would have been.

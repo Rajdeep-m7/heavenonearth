@@ -12,6 +12,7 @@ const NAV = [
   { href: "/admin/categories", label: "Master packages" },
   { href: "/admin/packages", label: "Packages" },
   { href: "/admin/stays", label: "Room stays" },
+  { href: "/admin/trending", label: "Trending" },
   { href: "/admin/reviews", label: "Reviews" },
   { href: "/admin/gallery", label: "Gallery" },
   // Managing who else has admin access is owner-only — an editor should not

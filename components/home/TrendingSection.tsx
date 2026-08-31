@@ -7,10 +7,8 @@ import { useState } from "react";
 import { Rail } from "@/components/ui/Rail";
 import { Reveal } from "@/components/ui/Reveal";
 import { ArrowUpRight } from "@/components/ui/Icons";
-import {
-  trendingDestinations,
-  type TrendingTab,
-} from "@/lib/data/trending";
+import { type TrendingTab } from "@/lib/data/trending";
+import { type TrendingData } from "@/lib/queries/trending";
 
 const tabs: { id: TrendingTab; label: string }[] = [
   { id: "international", label: "International" },
@@ -23,9 +21,9 @@ const nameStyles: Record<string, string> = {
   title: "font-display text-[28px] font-medium sm:text-[32px]",
 };
 
-export function TrendingSection() {
+export function TrendingSection({ data }: { data: TrendingData }) {
   const [tab, setTab] = useState<TrendingTab>("international");
-  const items = trendingDestinations[tab];
+  const items = data[tab];
 
   return (
     <section

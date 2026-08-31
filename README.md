@@ -19,27 +19,28 @@ Read these in order.
 | [`03-api-reference.md`](./docs/03-api-reference.md) | Every endpoint, response envelope, error codes, cache tags |
 | [`04-auth-and-admin.md`](./docs/04-auth-and-admin.md) | Admin login, cookies, middleware, admin screens, security checklist |
 | [`05-deployment-vercel.md`](./docs/05-deployment-vercel.md) | Free-tier optimisation, env vars, Atlas setup, deploy checklist |
-| [`06-stays-cars-bookings.md`](./docs/06-stays-cars-bookings.md) | Room stays, car rentals, and the guest booking flow |
+| [`06-stays-cars-bookings.md`](./docs/06-stays-cars-bookings.md) | Room stays with real availability, and flight/car/train requests |
 
 ---
 
 ## Feature scope
 
-**Public (no login)**
+**Public (no login, no checkout)**
 - Home, destinations by master package (hill / sea / forest), package detail
-- Room stays with rooms, availability and rates
-- Car rentals with per-day / per-km / fixed-route pricing
-- 4-step guest booking flow for stays, cars and packages
+- Room stays with rooms, shown as a catalog — price and amenities, no
+  availability calendar
+- Flights, cars, and trains — a page per service describing what is arranged
+- **Every "Book" / "Enquire" action opens WhatsApp** with a pre-filled
+  message to the owner. Nothing is booked, paid, or stored on the site.
 - Gallery, reviews, review submission
 - Full SEO: metadata, JSON-LD `@graph`, sitemap, robots, OG images
 
 **Admin (login required)**
 - Master packages (categories) CRUD
 - Packages CRUD with itinerary builder
-- Stays + nested rooms + blackout dates
-- Vehicles + routes and fare grid
-- Bookings queue: confirm, cancel, record payment
+- Stays + nested rooms
 - Reviews moderation, gallery management
+- Admin user management (owner-only): add, edit, deactivate other admins
 - Direct-to-Cloudinary image uploads
 
 ---
@@ -72,17 +73,17 @@ Admin panel: `http://localhost:3000/admin/login`
 
 | Area | State |
 | --- | --- |
-| Home page UI | **Built** — matches the approved design, now DB-driven |
+| Home page UI | **Built** — matches the approved design, DB-driven, verified against live Atlas + Cloudinary |
 | SEO foundation | **Built** — metadata, JSON-LD graph, sitemap, robots, manifest |
-| Design tokens | **Built** — palette and type scale sampled from the PDFs |
-| Docs | **Built** — this set |
-| Database layer | **Built** — cached connection, 7 models, indexes, slug hooks |
+| Database layer | **Built** — cached connection, models + indexes for categories, packages, stays, rooms, reviews, gallery, admins |
 | Public API | **Built** — categories, packages, stays, rooms, reviews, gallery |
-| Admin auth | **Built** — login, JWT cookie, Edge middleware, `requireAdmin` |
+| Admin auth | **Built** — login, JWT cookie, Edge middleware, `requireAdmin` / `requireOwner` |
 | Cloudinary | **Built** — signed direct upload, custom `next/image` loader |
-| Seed script | **Built** — `npm run seed` |
-| Admin panel UI | Not yet built — waiting on reference screens |
-| Cars / bookings | Specified in doc 06, not yet implemented |
+| Admin panel | **Built** — dashboard, categories, packages (+ itinerary builder), stays (+ rooms), reviews moderation, gallery, owner-only admin-user management |
+| Seed script | **Built** — `npm run seed`, plus `npm run admin:add` for additional admins |
+| Public pages beyond home | Not built — `/destinations`, `/packages`, `/stays`, `/gallery`, `/reviews` all have working APIs behind them already |
+| WhatsApp CTA (`lib/whatsapp.ts` + button) | Specified in doc 06, not yet implemented — small, needed before any "Book"/"Enquire" button exists |
+| `/flights`, `/cars`, `/trains` | Specified in doc 06 as static pages + one WhatsApp button each; not yet implemented |
 
 **Before Atlas is configured** the home page falls back to the design fixtures
 in `lib/data/` so the site still renders; the API returns a clear
@@ -91,12 +92,12 @@ in `lib/data/` so the site still renders; the API returns a clear
 
 ---
 
-## Two decisions that need your call
+## The core decision
 
-1. **Online payments.** v1 as specified ships *pay-later*: a booking is created
-   as `pending` / `unpaid` and your team confirms by phone. Wiring Razorpay adds
-   a provider account, a webhook route and its own testing pass. Say the word if
-   it must be in the first release.
-2. **The remaining screens.** Send the reference designs for stays, cars,
-   booking steps and the admin panel and the UI will follow them the same way
-   the home page followed `Home.pdf`.
+**The website never takes a booking or a payment.** For stays, packages,
+flights, cars, and trains alike, every call to action opens a pre-filled
+WhatsApp chat with the owner — that is where dates, pricing, and confirmation
+actually happen. There is no `Booking` model, no checkout, no reference code,
+no payment status to track. See
+[`06-stays-cars-bookings.md`](./docs/06-stays-cars-bookings.md) for the
+pattern and why it fits this business better than a booking engine would.

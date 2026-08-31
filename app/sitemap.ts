@@ -1,61 +1,62 @@
 import type { MetadataRoute } from "next";
 
 import { absoluteUrl } from "@/lib/site";
-import { regions } from "@/lib/data/regions";
-import { journeys } from "@/lib/data/journeys";
-import { homestays } from "@/lib/data/homestays";
-import { trendingDestinations } from "@/lib/data/trending";
+import { hasDatabase } from "@/lib/env";
+import { getAllCategorySlugs } from "@/lib/queries/destinations";
+import { getAllPackageSlugs } from "@/lib/queries/packages";
+import { getAllStaySlugs } from "@/lib/queries/stays";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const lastModified = new Date();
 
-  const staticRoutes: MetadataRoute.Sitemap = ([
-    { url: absoluteUrl("/"), changeFrequency: "weekly", priority: 1 },
-    { url: absoluteUrl("/destinations"), changeFrequency: "weekly", priority: 0.9 },
-    { url: absoluteUrl("/homestays"), changeFrequency: "weekly", priority: 0.9 },
-    { url: absoluteUrl("/packages"), changeFrequency: "weekly", priority: 0.9 },
-    { url: absoluteUrl("/about"), changeFrequency: "monthly", priority: 0.7 },
-    { url: absoluteUrl("/reviews"), changeFrequency: "weekly", priority: 0.7 },
-    { url: absoluteUrl("/travel-styles"), changeFrequency: "monthly", priority: 0.6 },
-    { url: absoluteUrl("/contact"), changeFrequency: "monthly", priority: 0.6 },
-    { url: absoluteUrl("/privacy-policy"), changeFrequency: "yearly", priority: 0.3 },
-    { url: absoluteUrl("/terms-of-service"), changeFrequency: "yearly", priority: 0.3 },
-  ] satisfies MetadataRoute.Sitemap).map((route) => ({ ...route, lastModified }));
+  const staticRoutes = (
+    [
+      { url: absoluteUrl("/"), changeFrequency: "weekly", priority: 1 },
+      { url: absoluteUrl("/destinations"), changeFrequency: "weekly", priority: 0.9 },
+      { url: absoluteUrl("/packages"), changeFrequency: "weekly", priority: 0.9 },
+      { url: absoluteUrl("/stays"), changeFrequency: "weekly", priority: 0.9 },
+      { url: absoluteUrl("/gallery"), changeFrequency: "weekly", priority: 0.6 },
+      { url: absoluteUrl("/reviews"), changeFrequency: "weekly", priority: 0.6 },
+      { url: absoluteUrl("/flights"), changeFrequency: "monthly", priority: 0.6 },
+      { url: absoluteUrl("/cars"), changeFrequency: "monthly", priority: 0.6 },
+      { url: absoluteUrl("/trains"), changeFrequency: "monthly", priority: 0.6 },
+      { url: absoluteUrl("/about"), changeFrequency: "monthly", priority: 0.5 },
+      { url: absoluteUrl("/contact"), changeFrequency: "monthly", priority: 0.5 },
+      { url: absoluteUrl("/privacy-policy"), changeFrequency: "yearly", priority: 0.2 },
+      { url: absoluteUrl("/terms-of-service"), changeFrequency: "yearly", priority: 0.2 },
+    ] satisfies MetadataRoute.Sitemap
+  ).map((route) => ({ ...route, lastModified }));
 
-  const destinationSlugs = new Set([
-    ...regions.map((region) => region.slug),
-    ...Object.values(trendingDestinations)
-      .flat()
-      .map((destination) => destination.slug),
+  // No DB configured yet (e.g. a fresh checkout before .env.local is filled
+  // in) — a sitemap with just the static routes is still valid.
+  if (!hasDatabase()) return staticRoutes;
+
+  const [categorySlugs, packageSlugs, staySlugs] = await Promise.all([
+    getAllCategorySlugs(),
+    getAllPackageSlugs(),
+    getAllStaySlugs(),
   ]);
 
-  const destinationRoutes: MetadataRoute.Sitemap = [...destinationSlugs].map(
-    (slug) => ({
-      url: absoluteUrl(`/destinations/${slug}`),
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 0.8,
-    }),
-  );
-
-  const packageRoutes: MetadataRoute.Sitemap = journeys.map((journey) => ({
-    url: absoluteUrl(`/packages/${journey.slug}`),
+  const destinationRoutes: MetadataRoute.Sitemap = categorySlugs.map((slug) => ({
+    url: absoluteUrl(`/destinations/${slug}`),
     lastModified,
     changeFrequency: "monthly",
     priority: 0.8,
   }));
 
-  const homestayRoutes: MetadataRoute.Sitemap = homestays.map((stay) => ({
-    url: absoluteUrl(`/homestays/${stay.slug}`),
+  const packageRoutes: MetadataRoute.Sitemap = packageSlugs.map((slug) => ({
+    url: absoluteUrl(`/packages/${slug}`),
+    lastModified,
+    changeFrequency: "monthly",
+    priority: 0.8,
+  }));
+
+  const stayRoutes: MetadataRoute.Sitemap = staySlugs.map((slug) => ({
+    url: absoluteUrl(`/stays/${slug}`),
     lastModified,
     changeFrequency: "monthly",
     priority: 0.7,
   }));
 
-  return [
-    ...staticRoutes,
-    ...destinationRoutes,
-    ...packageRoutes,
-    ...homestayRoutes,
-  ];
+  return [...staticRoutes, ...destinationRoutes, ...packageRoutes, ...stayRoutes];
 }
