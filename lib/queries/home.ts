@@ -243,6 +243,11 @@ export const getHomeData = unstable_cache(
       }
       return data;
     } catch (error) {
+      // unstable_cache stores whatever we return, so a fixture fallback here would
+      // pin placeholder content for the full hour after one transient blip. In
+      // production, throw instead: nothing is cached, and ISR keeps serving the
+      // last good page until the next revalidation succeeds.
+      if (process.env.NODE_ENV === "production") throw error;
       console.error("[home] falling back to fixtures:", error);
       return fixtureData();
     }

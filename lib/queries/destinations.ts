@@ -7,6 +7,8 @@ import { db } from "@/lib/db/connect";
 import { Category, Package } from "@/lib/db/models";
 import { leanJson, pickImage, type Image, type Seo } from "@/lib/db/shared";
 
+export type SlugEntry = { slug: string; updatedAt?: Date };
+
 export type CategorySummary = {
   _id: string;
   name: string;
@@ -133,10 +135,13 @@ export const getCategoryBySlug = (slug: string) =>
   )();
 
 /** Slugs for generateStaticParams — active categories only. */
-export async function getAllCategorySlugs(): Promise<string[]> {
+export async function getAllCategorySlugs(): Promise<SlugEntry[]> {
   await db();
   const categories = await Category.find({ isActive: true })
-    .select("slug")
+    .select("slug updatedAt")
     .lean();
-  return categories.map((category) => category.slug);
+  return categories.map((category) => ({
+    slug: category.slug,
+    updatedAt: category.updatedAt,
+  }));
 }

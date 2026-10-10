@@ -37,23 +37,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getAllStaySlugs(),
   ]);
 
-  const destinationRoutes: MetadataRoute.Sitemap = categorySlugs.map((slug) => ({
+  const destinationRoutes: MetadataRoute.Sitemap = categorySlugs.map(({ slug, updatedAt }) => ({
     url: absoluteUrl(`/destinations/${slug}`),
-    lastModified,
+    lastModified: updatedAt ?? lastModified,
     changeFrequency: "monthly",
     priority: 0.8,
   }));
 
-  const packageRoutes: MetadataRoute.Sitemap = packageSlugs.map((slug) => ({
+  const packageRoutes: MetadataRoute.Sitemap = packageSlugs.map(({ slug, updatedAt }) => ({
     url: absoluteUrl(`/packages/${slug}`),
-    lastModified,
+    lastModified: updatedAt ?? lastModified,
     changeFrequency: "monthly",
     priority: 0.8,
   }));
 
-  const stayRoutes: MetadataRoute.Sitemap = staySlugs.map((slug) => ({
+  const stayRoutes: MetadataRoute.Sitemap = staySlugs.map(({ slug, updatedAt }) => ({
     url: absoluteUrl(`/stays/${slug}`),
-    lastModified,
+    lastModified: updatedAt ?? lastModified,
     changeFrequency: "monthly",
     priority: 0.7,
   }));

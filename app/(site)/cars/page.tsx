@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 
+import { pageMetadata } from "@/lib/seo/metadata";
+
 import { ServicePage } from "@/components/services/ServicePage";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Private Car & Transfer Booking",
   description:
     "Private cars and drivers across Darjeeling, Sikkim and the Dooars — airport transfers, point-to-point hire, and multi-day journeys arranged directly, no fleet checkout.",
-  alternates: { canonical: "/cars" },
-};
+  path: "/cars",
+});
 
 export default function CarsPage() {
   return (

@@ -8,6 +8,7 @@ import { ReviewCard } from "@/components/packages/ReviewCard";
 import { ArrowRight, Check, Star } from "@/components/ui/Icons";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { getAllStaySlugs, getStayBySlug } from "@/lib/queries/stays";
+import { ogImageFrom, pageMetadata } from "@/lib/seo/metadata";
 import { buildStayGraph } from "@/lib/seo/schema";
 import { absoluteUrl } from "@/lib/site";
 import { whatsappForRoom, whatsappForStay } from "@/lib/whatsapp";
@@ -16,7 +17,7 @@ export const revalidate = 3600;
 
 export async function generateStaticParams() {
   const slugs = await getAllStaySlugs();
-  return slugs.map((slug) => ({ slug }));
+  return slugs.map(({ slug }) => ({ slug }));
 }
 
 type Params = { params: Promise<{ slug: string }> };
@@ -44,12 +45,12 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const title = stay.seo?.title || stay.name;
   const description = stay.seo?.description || stay.summary;
 
-  return {
+  return pageMetadata({
     title,
     description,
-    alternates: { canonical: `/stays/${slug}` },
-    openGraph: { title, description, images: [stay.coverImage.url] },
-  };
+    path: `/stays/${slug}`,
+    image: ogImageFrom(stay.coverImage.url, stay.coverImage.alt || stay.name),
+  });
 }
 
 export default async function StayDetailPage({ params }: Params) {

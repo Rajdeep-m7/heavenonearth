@@ -8,7 +8,7 @@ const playfair = Playfair_Display({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-playfair",
-  weight: ["400", "500", "600", "700", "800", "900"],
+  // Variable font: one file per style instead of a file per weight.
   style: ["normal", "italic"],
   preload: true,
 });
@@ -17,7 +17,7 @@ const poppins = Poppins({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-poppins",
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700"],
   preload: true,
 });
 
@@ -34,10 +34,6 @@ export const metadata: Metadata = {
   creator: siteConfig.legalName,
   publisher: siteConfig.legalName,
   category: "travel",
-  alternates: {
-    canonical: "/",
-    languages: { "en-IN": "/", "x-default": "/" },
-  },
   openGraph: {
     type: "website",
     locale: siteConfig.locale,

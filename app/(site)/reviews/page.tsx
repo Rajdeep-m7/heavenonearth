@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+
+import { pageMetadata } from "@/lib/seo/metadata";
 import Link from "next/link";
 
 import { ReviewCard } from "@/components/packages/ReviewCard";
@@ -8,12 +10,12 @@ import { Star } from "@/components/ui/Icons";
 import { getApprovedReviews } from "@/lib/queries/reviews";
 import { siteConfig } from "@/lib/site";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Reviews",
   description:
     "What travellers say after a Heaven on Earth journey through Darjeeling, Sikkim and the Dooars.",
-  alternates: { canonical: "/reviews" },
-};
+  path: "/reviews",
+});
 
 type SearchParams = Promise<{ page?: string }>;
 

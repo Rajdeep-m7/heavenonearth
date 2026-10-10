@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 
+import { pageMetadata } from "@/lib/seo/metadata";
+
 import { ServicePage } from "@/components/services/ServicePage";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Train Ticket Booking Assistance",
   description:
     "Train travel to and from New Jalpaiguri (NJP), arranged with the right class and connections for your onward journey into the hills.",
-  alternates: { canonical: "/trains" },
-};
+  path: "/trains",
+});
 
 export default function TrainsPage() {
   return (

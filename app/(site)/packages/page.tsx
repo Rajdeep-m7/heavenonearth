@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+
+import { pageMetadata } from "@/lib/seo/metadata";
 import Link from "next/link";
 
 import { EmptyGrid } from "@/components/site/EmptyGrid";
@@ -6,12 +8,12 @@ import { PackageCard } from "@/components/packages/PackageCard";
 import { getCategories } from "@/lib/queries/destinations";
 import { getPackagesList } from "@/lib/queries/packages";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Packages",
   description:
     "Curated Himalayan journeys — tea-garden escapes, monastery trails, and mountain road trips, priced and ready to plan.",
-  alternates: { canonical: "/packages" },
-};
+  path: "/packages",
+});
 
 type SearchParams = Promise<{ category?: string; page?: string }>;
 

@@ -11,13 +11,14 @@ import {
   getAllCategorySlugs,
   getCategoryBySlug,
 } from "@/lib/queries/destinations";
+import { ogImageFrom, pageMetadata } from "@/lib/seo/metadata";
 import { buildCategoryGraph } from "@/lib/seo/schema";
 
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
   const slugs = await getAllCategorySlugs();
-  return slugs.map((category) => ({ category }));
+  return slugs.map(({ slug: category }) => ({ category }));
 }
 
 type Params = { params: Promise<{ category: string }> };
@@ -33,12 +34,14 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     data.category.tagline ||
     data.category.description;
 
-  return {
+  const cover = data.category.heroImage ?? data.category.thumbnail;
+
+  return pageMetadata({
     title,
     description,
-    alternates: { canonical: `/destinations/${slug}` },
-    openGraph: { title, description },
-  };
+    path: `/destinations/${slug}`,
+    image: ogImageFrom(cover?.url, cover?.alt || data.category.name),
+  });
 }
 
 export default async function DestinationDetailPage({ params }: Params) {

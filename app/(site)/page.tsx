@@ -11,6 +11,7 @@ import { FinalCta } from "@/components/home/FinalCta";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { getHomeData } from "@/lib/queries/home";
 import { getTrendingData } from "@/lib/queries/trending";
+import { pageMetadata } from "@/lib/seo/metadata";
 import { buildHomeGraph } from "@/lib/seo/schema";
 import { siteConfig } from "@/lib/site";
 
@@ -22,13 +23,17 @@ import { siteConfig } from "@/lib/site";
 // Keep in step with REVALIDATE_SECONDS in lib/cache.ts.
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
+const homeMetadata = pageMetadata({
   title:
     "Himalayan Tour Packages, Homestays & Destination Experts | Darjeeling, Sikkim & Dooars",
   description: siteConfig.description,
-  alternates: { canonical: "/" },
+  path: "/",
+});
+
+export const metadata: Metadata = {
+  ...homeMetadata,
   openGraph: {
-    url: siteConfig.url,
+    ...homeMetadata.openGraph,
     title: `${siteConfig.name} — ${siteConfig.tagline}`,
     description: siteConfig.shortDescription,
   },

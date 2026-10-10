@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 
+import { pageMetadata } from "@/lib/seo/metadata";
+
 import { ServicePage } from "@/components/services/ServicePage";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Flight Booking Assistance",
   description:
     "Flights to Bagdogra and beyond, arranged around your itinerary — fares, timings and connections handled by our team, not a booking engine.",
-  alternates: { canonical: "/flights" },
-};
+  path: "/flights",
+});
 
 export default function FlightsPage() {
   return (

@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
+
+import { pageMetadata } from "@/lib/seo/metadata";
 import Image from "next/image";
 
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { siteConfig } from "@/lib/site";
 import { whatsappGeneral } from "@/lib/whatsapp";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Our Story",
   description:
     "Heaven on Earth Destination Experts curate personal Himalayan journeys across Darjeeling, Sikkim, Kalimpong and the Dooars.",
-  alternates: { canonical: "/about" },
-};
+  path: "/about",
+});
 
 const VALUES = [
   {

@@ -199,7 +199,8 @@ export function buildHomeGraph(data: HomeData) {
     parentOrganization: { "@id": ORG_ID },
   }));
 
-  const reviewNodes: Node[] = data.testimonials.map((testimonial) => ({
+  // Placeholder testimonials must never be marked up as real reviews.
+  const reviewNodes: Node[] = (data.usingFixtures ? [] : data.testimonials).map((testimonial) => ({
     "@type": "Review",
     "@id": absoluteUrl(`/reviews#${testimonial.id}`),
     itemReviewed: { "@id": ORG_ID },

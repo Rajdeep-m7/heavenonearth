@@ -8,6 +8,7 @@ import { ReviewCard } from "@/components/packages/ReviewCard";
 import { ArrowRight, Check, Star } from "@/components/ui/Icons";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { getAllPackageSlugs, getPackageBySlug } from "@/lib/queries/packages";
+import { ogImageFrom, pageMetadata } from "@/lib/seo/metadata";
 import { buildPackageGraph } from "@/lib/seo/schema";
 import { absoluteUrl } from "@/lib/site";
 import { whatsappForPackage } from "@/lib/whatsapp";
@@ -16,7 +17,7 @@ export const revalidate = 3600;
 
 export async function generateStaticParams() {
   const slugs = await getAllPackageSlugs();
-  return slugs.map((slug) => ({ slug }));
+  return slugs.map(({ slug }) => ({ slug }));
 }
 
 type Params = { params: Promise<{ slug: string }> };
@@ -36,16 +37,12 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const title = pkg.seo?.title || pkg.title;
   const description = pkg.seo?.description || pkg.summary;
 
-  return {
+  return pageMetadata({
     title,
     description,
-    alternates: { canonical: `/packages/${slug}` },
-    openGraph: {
-      title,
-      description,
-      images: [pkg.coverImage.url],
-    },
-  };
+    path: `/packages/${slug}`,
+    image: ogImageFrom(pkg.coverImage.url, pkg.coverImage.alt || pkg.title),
+  });
 }
 
 export default async function PackageDetailPage({ params }: Params) {

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+
+import { pageMetadata } from "@/lib/seo/metadata";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -6,12 +8,12 @@ import { EmptyGrid } from "@/components/site/EmptyGrid";
 import { getCategories } from "@/lib/queries/destinations";
 import { getGalleryItems } from "@/lib/queries/gallery";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Gallery",
   description:
     "Tea gardens, mountain roads, and quiet homestays — a look at the Eastern Himalayas through the journeys we've curated.",
-  alternates: { canonical: "/gallery" },
-};
+  path: "/gallery",
+});
 
 type SearchParams = Promise<{ category?: string; page?: string }>;
 

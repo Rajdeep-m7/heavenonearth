@@ -6,6 +6,7 @@ import { REVALIDATE_SECONDS, TAGS } from "@/lib/cache";
 import { db } from "@/lib/db/connect";
 import { Category, Package, Review, aggregateRating } from "@/lib/db/models";
 import { leanJson, pickImage, type Image, type Seo } from "@/lib/db/shared";
+import type { SlugEntry } from "@/lib/queries/destinations";
 
 export type PackageCard = {
   _id: string;
@@ -185,8 +186,10 @@ export const getPackageBySlug = (slug: string) =>
   )();
 
 /** Slugs for generateStaticParams — active packages only. */
-export async function getAllPackageSlugs(): Promise<string[]> {
+export async function getAllPackageSlugs(): Promise<SlugEntry[]> {
   await db();
-  const packages = await Package.find({ isActive: true }).select("slug").lean();
-  return packages.map((pkg) => pkg.slug);
+  const packages = await Package.find({ isActive: true })
+    .select("slug updatedAt")
+    .lean();
+  return packages.map((pkg) => ({ slug: pkg.slug, updatedAt: pkg.updatedAt }));
 }

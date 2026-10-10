@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 
+import { pageMetadata } from "@/lib/seo/metadata";
+
 import { LegalPage } from "@/components/site/LegalPage";
 import { siteConfig } from "@/lib/site";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Terms of Service",
-  description: `The terms that apply to using ${siteConfig.name}'s website.`,
-  alternates: { canonical: "/terms-of-service" },
-  robots: { index: true, follow: true },
-};
+  description:
+    `The terms that apply to using ${siteConfig.name}'s website.`,
+  path: "/terms-of-service",
+});
 
 export default function TermsOfServicePage() {
   return (

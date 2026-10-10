@@ -6,6 +6,7 @@ import { REVALIDATE_SECONDS, TAGS } from "@/lib/cache";
 import { db } from "@/lib/db/connect";
 import { Category, Review, Room, Stay, aggregateRating } from "@/lib/db/models";
 import { leanJson, pickImage, type Image, type Seo } from "@/lib/db/shared";
+import type { SlugEntry } from "@/lib/queries/destinations";
 
 export type StayCard = {
   _id: string;
@@ -224,8 +225,8 @@ export const getStayBySlug = (slug: string) =>
   )();
 
 /** Slugs for generateStaticParams — active stays only. */
-export async function getAllStaySlugs(): Promise<string[]> {
+export async function getAllStaySlugs(): Promise<SlugEntry[]> {
   await db();
-  const stays = await Stay.find({ isActive: true }).select("slug").lean();
-  return stays.map((stay) => stay.slug);
+  const stays = await Stay.find({ isActive: true }).select("slug updatedAt").lean();
+  return stays.map((stay) => ({ slug: stay.slug, updatedAt: stay.updatedAt }));
 }
