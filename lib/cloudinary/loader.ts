@@ -21,8 +21,12 @@ export default function cloudinaryLoader({
   width: number;
   quality?: number;
 }): string {
-  // Local public/ assets and absolute URLs pass through untouched.
-  if (src.startsWith("/") || src.startsWith("http")) return src;
+  // Local public/ assets and absolute URLs are served as-is. The `w` query is
+  // ignored by the static file server but keeps each srcset entry distinct and
+  // satisfies next/image's "loader must implement width" check.
+  if (src.startsWith("/") || src.startsWith("http")) {
+    return `${src}${src.includes("?") ? "&" : "?"}w=${width}`;
+  }
 
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   if (!cloudName) return src;

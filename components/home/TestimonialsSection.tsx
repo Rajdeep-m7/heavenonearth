@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 
 import { Rail } from "@/components/ui/Rail";
@@ -76,14 +75,6 @@ export function TestimonialsSection({ testimonials, rating }: Props) {
                 </blockquote>
 
                 <figcaption className="mt-7 flex items-center gap-3.5 border-t border-white/15 pt-5">
-                  <Image
-                    src={testimonial.avatar}
-                    alt=""
-                    width={96}
-                    height={96}
-                    sizes="48px"
-                    className="size-12 shrink-0 rounded-full object-cover ring-2 ring-gold/60"
-                  />
                   <div>
                     <p className="font-semibold text-white">
                       {testimonial.author}
