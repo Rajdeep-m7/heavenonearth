@@ -3,8 +3,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySession } from "@/lib/auth/jwt";
 
 /**
- * Runs on the Edge runtime, so it must stay dependency-light — `jose` is Web
- * Crypto based and works here; mongoose and bcryptjs do not.
+ * Next 16 calls this file a proxy (formerly middleware). Keep it
+ * dependency-light — it only verifies the JWT; account state is re-checked in
+ * requireAdmin().
  *
  * This is defence in depth. Mutating routes outside /api/admin/* still call
  * requireAdmin() themselves.
@@ -12,7 +13,7 @@ import { SESSION_COOKIE, verifySession } from "@/lib/auth/jwt";
 
 const PUBLIC_PATHS = new Set(["/admin/login", "/api/admin/auth/login"]);
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (PUBLIC_PATHS.has(pathname)) return NextResponse.next();

@@ -24,8 +24,11 @@ const MAX_KEYS = 5000;
 
 export function clientIp(request: NextRequest): string {
   return (
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    // Vercel sets these itself; a client-supplied x-forwarded-for is only
+    // trusted as a last resort.
+    request.headers.get("x-vercel-forwarded-for")?.split(",")[0]?.trim() ||
     request.headers.get("x-real-ip") ||
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     "unknown"
   );
 }

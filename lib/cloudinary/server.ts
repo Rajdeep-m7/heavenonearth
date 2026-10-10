@@ -8,7 +8,10 @@ import { serverEnv } from "@/lib/env";
 const ROOT = "heavenonearth";
 
 /** Server-side allow-list — a client cannot write anywhere it likes. */
-const FOLDERS = ["categories", "packages", "stays", "rooms", "gallery", "reviews"] as const;
+const FOLDERS = ["categories", "packages", "stays", "rooms", "gallery", "reviews", "trending"] as const;
+
+/** Signed into every upload, so a client cannot push anything but web images. */
+const ALLOWED_FORMATS = "jpg,jpeg,png,webp,avif";
 export type UploadFolder = (typeof FOLDERS)[number];
 
 function configure() {
@@ -39,7 +42,7 @@ export function createUploadSignature(folder: string) {
   const target = `${ROOT}/${folder}`;
 
   const signature = cloudinary.utils.api_sign_request(
-    { timestamp, folder: target },
+    { timestamp, folder: target, allowed_formats: ALLOWED_FORMATS },
     env.CLOUDINARY_API_SECRET,
   );
 
@@ -49,12 +52,26 @@ export function createUploadSignature(folder: string) {
     apiKey: env.CLOUDINARY_API_KEY,
     cloudName: env.CLOUDINARY_CLOUD_NAME,
     folder: target,
+    allowedFormats: ALLOWED_FORMATS,
   };
 }
 
 export async function destroyAsset(publicId: string) {
   configure();
   return cloudinary.uploader.destroy(publicId, { invalidate: true });
+}
+
+/**
+ * Best-effort cleanup after a record is deleted. Local `/images/...` fixtures
+ * and empty slots are skipped; a failed destroy never fails the request.
+ */
+export async function destroyImages(
+  images: ReadonlyArray<{ publicId?: string } | null | undefined>,
+) {
+  const ids = images
+    .map((image) => image?.publicId)
+    .filter((id): id is string => Boolean(id) && !id!.startsWith("/") && !id!.startsWith("http"));
+  await Promise.allSettled(ids.map((id) => destroyAsset(id)));
 }
 
 /** Tiny base64 LQIP, generated once at upload time rather than per request. */

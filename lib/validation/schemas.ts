@@ -27,6 +27,24 @@ export const seo = z
   })
   .optional();
 
+/**
+ * `.partial()` is not enough for PATCH bodies: Zod 4 still applies `.default()`
+ * to omitted keys, so `{ isFeatured: true }` would silently reset every other
+ * defaulted field (images, inclusions, isActive, order...). This unwraps the
+ * defaults first, so an omitted key stays omitted.
+ */
+type Unwrapped<T> = T extends z.ZodDefault<infer Inner> ? Inner : T;
+
+function toUpdate<S extends z.ZodRawShape>(schema: z.ZodObject<S>) {
+  const shape = Object.fromEntries(
+    Object.entries(schema.shape).map(([key, value]) => [
+      key,
+      ((value instanceof z.ZodDefault ? value.unwrap() : value) as z.ZodType).optional(),
+    ]),
+  ) as unknown as { [K in keyof S]: z.ZodOptional<Unwrapped<S[K]>> };
+  return z.object(shape);
+}
+
 const slug = z
   .string()
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Lowercase letters, numbers and hyphens only")
@@ -49,7 +67,7 @@ export const categoryCreate = z.object({
   seo,
 });
 
-export const categoryUpdate = categoryCreate.partial();
+export const categoryUpdate = toUpdate(categoryCreate);
 
 /* ------------------------------------------------------------------ */
 /* Package                                                             */
@@ -92,7 +110,11 @@ export const packageCreate = packageBase.refine(
   { message: "Nights cannot exceed days", path: ["nights"] },
 );
 
-export const packageUpdate = packageBase.partial();
+export const packageUpdate = toUpdate(packageBase).refine(
+  (value) =>
+    value.nights === undefined || value.days === undefined || value.nights <= value.days,
+  { message: "Nights cannot exceed days", path: ["nights"] },
+);
 
 /* ------------------------------------------------------------------ */
 /* Stay + Room                                                         */
@@ -139,7 +161,7 @@ export const stayCreate = z.object({
   seo,
 });
 
-export const stayUpdate = stayCreate.partial();
+export const stayUpdate = toUpdate(stayCreate);
 
 export const roomCreate = z.object({
   name: z.string().min(2).max(120),
@@ -157,7 +179,7 @@ export const roomCreate = z.object({
   isActive: z.boolean().default(true),
 });
 
-export const roomUpdate = roomCreate.partial();
+export const roomUpdate = toUpdate(roomCreate);
 
 /* ------------------------------------------------------------------ */
 /* Review                                                              */
@@ -212,7 +234,7 @@ export const galleryCreate = z.union([
   z.object({ items: z.array(galleryItem).min(1).max(50) }),
 ]);
 
-export const galleryUpdate = galleryItem.partial();
+export const galleryUpdate = toUpdate(galleryItem);
 
 export const galleryReorder = z.object({
   order: z.array(objectId).min(1).max(200),
@@ -263,7 +285,7 @@ export const trendingCreate = z.object({
   isActive: z.boolean().default(true),
 });
 
-export const trendingUpdate = trendingCreate.partial();
+export const trendingUpdate = toUpdate(trendingCreate);
 
 /* ------------------------------------------------------------------ */
 /* Shared list query                                                   */

@@ -7,6 +7,7 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { ReviewCard } from "@/components/packages/ReviewCard";
 import { ArrowRight, Check, Star } from "@/components/ui/Icons";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
+import { redirectIfRenamed } from "@/lib/queries/redirects";
 import { getAllPackageSlugs, getPackageBySlug } from "@/lib/queries/packages";
 import { ogImageFrom, pageMetadata } from "@/lib/seo/metadata";
 import { buildPackageGraph } from "@/lib/seo/schema";
@@ -48,7 +49,10 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 export default async function PackageDetailPage({ params }: Params) {
   const { slug } = await params;
   const data = await getPackageBySlug(slug);
-  if (!data) notFound();
+  if (!data) {
+    await redirectIfRenamed("packages", slug);
+    notFound();
+  }
 
   const { pkg, reviews, rating } = data;
   const whatsappHref = whatsappForPackage(pkg.title, absoluteUrl(`/packages/${slug}`));

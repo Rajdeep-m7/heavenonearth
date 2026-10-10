@@ -102,6 +102,8 @@ export function uploadToCloudinary(
     apiKey: string;
     cloudName: string;
     folder: string;
+    /** Signed server-side; must be echoed back or Cloudinary rejects the upload. */
+    allowedFormats?: string;
   },
   onProgress?: (percent: number) => void,
 ): Promise<{ publicId: string; url: string; width: number; height: number }> {
@@ -112,6 +114,9 @@ export function uploadToCloudinary(
     form.append("timestamp", String(signature.timestamp));
     form.append("signature", signature.signature);
     form.append("folder", signature.folder);
+    if (signature.allowedFormats) {
+      form.append("allowed_formats", signature.allowedFormats);
+    }
 
     // XHR rather than fetch: fetch has no upload progress event.
     const xhr = new XMLHttpRequest();

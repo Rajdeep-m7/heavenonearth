@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/auth/session";
 import { TAGS, bustHome } from "@/lib/cache";
 import { db } from "@/lib/db/connect";
 import { Review } from "@/lib/db/models";
+import { destroyImages } from "@/lib/cloudinary/server";
 import { reviewModerate } from "@/lib/validation/schemas";
 
 export const runtime = "nodejs";
@@ -46,6 +47,8 @@ export const DELETE = handler(async (request: NextRequest, { params }: Ctx) => {
   await db();
   const review = await Review.findByIdAndDelete(id).lean();
   if (!review) return fail("NOT_FOUND", "That review no longer exists.");
+
+  await destroyImages([review.avatar]);
 
   if (review.status === "approved") bustHome(TAGS.reviews);
   return ok({ deleted: true });

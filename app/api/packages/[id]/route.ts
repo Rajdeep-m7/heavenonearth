@@ -6,6 +6,7 @@ import { TAGS, bustHome } from "@/lib/cache";
 import { db } from "@/lib/db/connect";
 import { Package } from "@/lib/db/models";
 import { destroyAsset } from "@/lib/cloudinary/server";
+import { recordSlugChange } from "@/lib/db/slug";
 import { packageUpdate } from "@/lib/validation/schemas";
 
 export const runtime = "nodejs";
@@ -40,6 +41,7 @@ export const PATCH = handler(async (request: NextRequest, { params }: Ctx) => {
   const previousSlug = pkg.slug;
   pkg.set(parsed.data);
   await pkg.save();
+  await recordSlugChange(Package, pkg._id, previousSlug, pkg.slug);
 
   bustHome(TAGS.packages, TAGS.package(pkg.slug), TAGS.package(previousSlug));
   return ok(pkg.toJSON());

@@ -211,7 +211,10 @@ async function main() {
   console.log(`stays: ${homestays.length}`);
 
   /* --- Reviews ---------------------------------------------------------- */
-  for (const testimonial of testimonials) {
+  // These are invented placeholder testimonials. Seeded as approved they feed
+  // the public rating and Review structured data, so they are opt-in only.
+  const seedReviews = process.env.SEED_PLACEHOLDER_REVIEWS === "true";
+  for (const testimonial of seedReviews ? testimonials : []) {
     await Review.findOneAndUpdate(
       { author: testimonial.author, quote: testimonial.quote },
       {
@@ -230,7 +233,11 @@ async function main() {
       { upsert: true, setDefaultsOnInsert: true },
     );
   }
-  console.log(`reviews: ${testimonials.length}`);
+  console.log(
+    seedReviews
+      ? `reviews: ${testimonials.length}`
+      : "reviews: skipped (set SEED_PLACEHOLDER_REVIEWS=true to seed placeholders)",
+  );
 
   await mongoose.disconnect();
   console.log("done");

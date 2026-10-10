@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/auth/session";
 import { TAGS, bustHome } from "@/lib/cache";
 import { db } from "@/lib/db/connect";
 import { Room, Stay, syncStayPriceFrom } from "@/lib/db/models";
+import { destroyImages } from "@/lib/cloudinary/server";
 import { roomUpdate } from "@/lib/validation/schemas";
 
 export const runtime = "nodejs";
@@ -48,6 +49,7 @@ export const DELETE = handler(async (request: NextRequest, { params }: Ctx) => {
   const room = await Room.findByIdAndDelete(id).lean();
   if (!room) return fail("NOT_FOUND", "That room no longer exists.");
 
+  await destroyImages(room.images ?? []);
   await syncStayPriceFrom(String(room.stay));
   await bustForStay(String(room.stay));
 

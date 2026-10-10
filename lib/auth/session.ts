@@ -5,6 +5,8 @@ import type { NextRequest } from "next/server";
 
 import { ApiError } from "@/lib/api/respond";
 import { SESSION_COOKIE, verifySession, type SessionPayload } from "@/lib/auth/jwt";
+import { db } from "@/lib/db/connect";
+import { Admin } from "@/lib/db/models";
 
 /** Current admin from the cookie, or null. Safe in server components. */
 export async function getSession(): Promise<SessionPayload | null> {
@@ -16,6 +18,10 @@ export async function getSession(): Promise<SessionPayload | null> {
  * First line of every mutating handler. Middleware already guards
  * /api/admin/*, but routes like POST /api/packages sit outside that matcher —
  * this is the check that actually protects them.
+ *
+ * A valid JWT is not enough on its own: the account is re-read so a
+ * deactivated or deleted admin loses access immediately, and a demoted owner
+ * loses owner rights immediately, instead of when the 8-hour token expires.
  */
 export async function requireAdmin(
   request?: NextRequest,
@@ -28,7 +34,25 @@ export async function requireAdmin(
   if (!session) {
     throw new ApiError("UNAUTHORIZED", "Please sign in to continue.");
   }
-  return session;
+
+  if (!/^[0-9a-fA-F]{24}$/.test(session.sub)) {
+    throw new ApiError("UNAUTHORIZED", "Please sign in to continue.");
+  }
+
+  await db();
+  const admin = await Admin.findOne({ _id: session.sub, isActive: true })
+    .select("role name email")
+    .lean();
+  if (!admin) {
+    throw new ApiError("UNAUTHORIZED", "This account is no longer active.");
+  }
+
+  return {
+    ...session,
+    role: admin.role === "owner" ? "owner" : "editor",
+    name: admin.name,
+    email: admin.email,
+  };
 }
 
 export async function requireOwner(request?: NextRequest) {

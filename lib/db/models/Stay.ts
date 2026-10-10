@@ -19,6 +19,8 @@ const StaySchema = new Schema(
   {
     name: { type: String, required: true, trim: true },
     slug: { type: String, required: true, lowercase: true, trim: true },
+    // Former slugs, so an old URL can 301 to the current one instead of 404ing.
+    slugHistory: { type: [String], default: [], index: true },
     category: { type: Schema.Types.ObjectId, ref: "Category" },
 
     summary: { type: String, required: true, trim: true, maxlength: 300 },

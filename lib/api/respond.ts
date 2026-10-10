@@ -93,6 +93,12 @@ export function handler<Args extends unknown[]>(
         );
       }
 
+      // A malformed id or non-numeric filter reaching Mongoose is the caller's
+      // mistake, not ours — answer 400 instead of a 500 with a reference code.
+      if ((error as { name?: string })?.name === "CastError") {
+        return fail("VALIDATION_FAILED", "That id or value is not valid.");
+      }
+
       // Duplicate key from a unique index that slipped past the slug hook.
       const mongoError = error as { code?: number; keyPattern?: Record<string, unknown> };
       if (mongoError?.code === 11000) {

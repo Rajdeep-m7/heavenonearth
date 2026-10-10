@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
+import { clientIp, rateLimit } from "@/lib/api/rateLimit";
 import { fail, handler, ok, zodFields } from "@/lib/api/respond";
 import {
   SESSION_COOKIE,
@@ -21,6 +22,22 @@ export const POST = handler(async (request: NextRequest) => {
   const parsed = adminLogin.safeParse(await request.json().catch(() => ({})));
   if (!parsed.success) {
     return fail("VALIDATION_FAILED", "Check your details.", zodFields(parsed.error));
+  }
+
+  // Throttle by address and by target account, so neither one attacker nor a
+  // distributed guess at a single account gets unlimited tries.
+  const window = { windowMs: 15 * 60 * 1000 };
+  const byIp = rateLimit(`login:ip:${clientIp(request)}`, { limit: 10, ...window });
+  const byEmail = rateLimit(`login:email:${parsed.data.email.toLowerCase()}`, {
+    limit: 5,
+    ...window,
+  });
+  if (!byIp.allowed || !byEmail.allowed) {
+    const wait = Math.max(byIp.retryAfterSeconds, byEmail.retryAfterSeconds);
+    return fail(
+      "RATE_LIMITED",
+      `Too many sign-in attempts. Try again in ${Math.ceil(wait / 60)} minutes.`,
+    );
   }
 
   const started = Date.now();

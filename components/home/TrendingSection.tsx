@@ -23,8 +23,6 @@ const nameStyles: Record<string, string> = {
 
 export function TrendingSection({ data }: { data: TrendingData }) {
   const [tab, setTab] = useState<TrendingTab>("international");
-  const items = data[tab];
-
   return (
     <section
       aria-labelledby="trending-heading"
@@ -68,16 +66,21 @@ export function TrendingSection({ data }: { data: TrendingData }) {
           </div>
         </Reveal>
 
+        {/* Both panels are in the HTML so crawlers see every destination; the
+            inactive one is only hidden, not unmounted. */}
+        {tabs.map(({ id: panelId }) => (
         <div
+          key={panelId}
           role="tabpanel"
-          id={`trend-panel-${tab}`}
-          aria-labelledby={`trend-tab-${tab}`}
+          id={`trend-panel-${panelId}`}
+          aria-labelledby={`trend-tab-${panelId}`}
+          hidden={tab !== panelId}
           className="mt-14 lg:mt-16"
         >
           <Rail label="Trending destinations" tone="light" className="gap-6 pb-4 lg:gap-8">
-            {items.map((destination, index) => (
+            {data[panelId].map((destination, index) => (
               <Link
-                key={`${tab}-${destination.slug}`}
+                key={`${panelId}-${destination.slug}`}
                 href={`/destinations/${destination.slug}`}
                 className="group relative w-[min(72vw,290px)] shrink-0 snap-start lg:w-[calc((100%-6rem)/4)]"
               >
@@ -107,6 +110,7 @@ export function TrendingSection({ data }: { data: TrendingData }) {
             ))}
           </Rail>
         </div>
+        ))}
 
         <Reveal delay={160} className="mt-12 flex justify-center">
           <Link

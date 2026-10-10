@@ -62,3 +62,32 @@ export function attachSlugHook<T>(schema: Schema<T>, sourceField: string) {
     doc.slug = candidate;
   });
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyModel = import("mongoose").Model<any>;
+
+/** Call after a save: remembers the old slug when an edit changed it. */
+export async function recordSlugChange(
+  model: AnyModel,
+  id: unknown,
+  previousSlug: string,
+  currentSlug: string,
+) {
+  if (!previousSlug || previousSlug === currentSlug) return;
+  await model.updateOne(
+    { _id: id },
+    { $addToSet: { slugHistory: previousSlug } },
+  );
+}
+
+/** The live slug that replaced `slug`, if it was ever renamed. */
+export async function findCurrentSlug(
+  model: AnyModel,
+  slug: string,
+): Promise<string | null> {
+  const doc = await model
+    .findOne({ slugHistory: slug, isActive: true })
+    .select("slug")
+    .lean<{ slug: string }>();
+  return doc?.slug ?? null;
+}

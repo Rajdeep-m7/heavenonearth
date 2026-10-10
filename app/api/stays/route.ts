@@ -12,6 +12,10 @@ type QueryFilter = Record<string, unknown>;
 
 export const runtime = "nodejs";
 
+/** Literal match only — user input must never be a live regex. */
+const escapeRegExp = (input: string) =>
+  input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 export const GET = handler(async (request: NextRequest) => {
   const params = request.nextUrl.searchParams;
 
@@ -38,7 +42,7 @@ export const GET = handler(async (request: NextRequest) => {
   if (propertyType) filter.propertyType = propertyType;
 
   const locality = params.get("locality");
-  if (locality) filter["location.locality"] = new RegExp(`^${locality}$`, "i");
+  if (locality) filter["location.locality"] = new RegExp(`^${escapeRegExp(locality)}$`, "i");
 
   const max = params.get("maxPrice");
   if (max) filter.priceFrom = { $lte: Number(max) };

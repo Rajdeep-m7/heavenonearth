@@ -7,6 +7,7 @@ import { EmptyGrid } from "@/components/site/EmptyGrid";
 import { PackageCard } from "@/components/packages/PackageCard";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { ArrowRight } from "@/components/ui/Icons";
+import { redirectIfRenamed } from "@/lib/queries/redirects";
 import {
   getAllCategorySlugs,
   getCategoryBySlug,
@@ -47,7 +48,10 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 export default async function DestinationDetailPage({ params }: Params) {
   const { category: slug } = await params;
   const data = await getCategoryBySlug(slug);
-  if (!data) notFound();
+  if (!data) {
+    await redirectIfRenamed("destinations", slug);
+    notFound();
+  }
 
   const { category, packages } = data;
   const heroImage =

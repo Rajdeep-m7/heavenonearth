@@ -7,6 +7,7 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { ReviewCard } from "@/components/packages/ReviewCard";
 import { ArrowRight, Check, Star } from "@/components/ui/Icons";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
+import { redirectIfRenamed } from "@/lib/queries/redirects";
 import { getAllStaySlugs, getStayBySlug } from "@/lib/queries/stays";
 import { ogImageFrom, pageMetadata } from "@/lib/seo/metadata";
 import { buildStayGraph } from "@/lib/seo/schema";
@@ -56,7 +57,10 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 export default async function StayDetailPage({ params }: Params) {
   const { slug } = await params;
   const data = await getStayBySlug(slug);
-  if (!data) notFound();
+  if (!data) {
+    await redirectIfRenamed("stays", slug);
+    notFound();
+  }
 
   const { stay, rooms, reviews, rating } = data;
   const place = [stay.location.locality, stay.location.region]

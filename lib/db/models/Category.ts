@@ -11,6 +11,8 @@ const CategorySchema = new Schema(
   {
     name: { type: String, required: true, trim: true },
     slug: { type: String, required: true, lowercase: true, trim: true },
+    // Former slugs, so an old URL can 301 to the current one instead of 404ing.
+    slugHistory: { type: [String], default: [], index: true },
     tagline: { type: String, trim: true },
     description: { type: String, trim: true },
     heroImage: { type: CloudinaryImageSchema },

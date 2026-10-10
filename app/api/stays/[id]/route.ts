@@ -5,6 +5,8 @@ import { requireAdmin } from "@/lib/auth/session";
 import { TAGS, bustHome } from "@/lib/cache";
 import { db } from "@/lib/db/connect";
 import { Room, Stay } from "@/lib/db/models";
+import { destroyImages } from "@/lib/cloudinary/server";
+import { recordSlugChange } from "@/lib/db/slug";
 import { stayUpdate } from "@/lib/validation/schemas";
 
 export const runtime = "nodejs";
@@ -39,6 +41,7 @@ export const PATCH = handler(async (request: NextRequest, { params }: Ctx) => {
   const previousSlug = stay.slug;
   stay.set(parsed.data);
   await stay.save();
+  await recordSlugChange(Stay, stay._id, previousSlug, stay.slug);
 
   bustHome(TAGS.stays, TAGS.stay(stay.slug), TAGS.stay(previousSlug));
   return ok(stay.toJSON());
@@ -53,7 +56,15 @@ export const DELETE = handler(async (request: NextRequest, { params }: Ctx) => {
   if (!stay) return fail("NOT_FOUND", "That stay no longer exists.");
 
   // Rooms have no meaning without their property.
+  const rooms = await Room.find({ stay: id }).select("images").lean();
   await Room.deleteMany({ stay: id });
+
+  await destroyImages([
+    stay.coverImage,
+    ...(stay.images ?? []),
+    stay.host?.avatar,
+    ...rooms.flatMap((room) => room.images ?? []),
+  ]);
 
   bustHome(TAGS.stays, TAGS.stay(stay.slug));
   return ok({ deleted: true });
