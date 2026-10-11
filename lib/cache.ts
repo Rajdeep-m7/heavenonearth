@@ -12,6 +12,8 @@ export const TAGS = {
   gallery: "gallery",
   home: "home",
   trending: "trending",
+  hero: "hero",
+  offer: "offer",
   package: (slug: string) => `package:${slug}`,
   stay: (slug: string) => `stay:${slug}`,
   category: (slug: string) => `category:${slug}`,

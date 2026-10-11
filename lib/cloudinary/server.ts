@@ -8,7 +8,7 @@ import { serverEnv } from "@/lib/env";
 const ROOT = "heavenonearth";
 
 /** Server-side allow-list — a client cannot write anywhere it likes. */
-const FOLDERS = ["categories", "packages", "stays", "rooms", "gallery", "reviews", "trending"] as const;
+const FOLDERS = ["categories", "packages", "stays", "rooms", "gallery", "reviews", "trending", "hero", "offers"] as const;
 
 /** Signed into every upload, so a client cannot push anything but web images. */
 const ALLOWED_FORMATS = "jpg,jpeg,png,webp,avif";

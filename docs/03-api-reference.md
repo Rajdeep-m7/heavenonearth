@@ -231,3 +231,30 @@ package/gallery item is deleted, and when an admin replaces an image.
 
 A write to `Package` revalidates `packages` **and** `package:<its slug>`, so a
 single edit refreshes exactly the affected pages and nothing else.
+
+---
+
+## 9. Hero banner and offer popup
+
+Both are admin-only (`/api/admin/*`, so the proxy guards them too) and are read
+on the public site through tag-cached queries (`lib/queries/hero.ts`,
+`lib/queries/offer.ts`).
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` / `POST` | `/api/admin/hero` | List slides / add one (max 10) |
+| `PATCH` / `DELETE` | `/api/admin/hero/:id` | Edit / delete a slide (old image is removed from Cloudinary) |
+| `PATCH` | `/api/admin/hero/reorder` | Body `{ order: [id, …] }` — slide order |
+| `GET` / `PUT` | `/api/admin/offer` | Read / save the single offer-popup document |
+
+- **Hero:** with no active slides (or no database) the site shows the built-in
+  slide from `lib/data/hero.ts`. One slide renders as a static banner; two or
+  more turn on the auto-playing slider. Writes bust `hero` + `home`.
+- **Offer popup:** one document (`key: "main"`). `showOn` is `home` or `all`;
+  `frequency` is `session`, `day` or `visit` (each full page load). The
+  start/end window is checked in the browser, because the cached server result
+  can be an hour old. Saving changes `version`, so visitors who closed the old
+  offer see the new one. Writes bust `offer`, which every public page reads via
+  the site layout.
+- Button links (`ctaHref`) must be a `/path` or `http(s)://` URL — validated
+  server-side so a `javascript:` link can never be stored.

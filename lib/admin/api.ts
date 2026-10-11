@@ -88,6 +88,8 @@ export const api = {
   get: <T>(path: string) => request<T>(path),
   post: <T>(path: string, json?: unknown) =>
     request<T>(path, { method: "POST", json: json ?? {} }),
+  put: <T>(path: string, json: unknown) =>
+    request<T>(path, { method: "PUT", json }),
   patch: <T>(path: string, json: unknown) =>
     request<T>(path, { method: "PATCH", json }),
   del: <T>(path: string) => request<T>(path, { method: "DELETE" }),

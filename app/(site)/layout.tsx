@@ -1,5 +1,7 @@
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
+import { OfferPopup } from "@/components/site/OfferPopup";
+import { getOfferPopup } from "@/lib/queries/offer";
 
 /**
  * Chrome for the public site only.
@@ -8,11 +10,15 @@ import { Header } from "@/components/layout/Header";
  * inherit the marketing header and footer — they were previously rendering
  * over the admin panel.
  */
-export default function SiteLayout({
+export default async function SiteLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Tag-cached like every other public read, so this costs no database hit
+  // per visitor and does not make the pages dynamic.
+  const offer = await getOfferPopup();
+
   return (
     <>
       <a
@@ -24,6 +30,7 @@ export default function SiteLayout({
       <Header />
       <main id="main">{children}</main>
       <Footer />
+      {offer && <OfferPopup offer={offer} />}
     </>
   );
 }

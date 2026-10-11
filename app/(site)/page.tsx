@@ -10,6 +10,7 @@ import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 import { FinalCta } from "@/components/home/FinalCta";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { getHomeData } from "@/lib/queries/home";
+import { getHeroSlides } from "@/lib/queries/hero";
 import { getTrendingData } from "@/lib/queries/trending";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { buildHomeGraph } from "@/lib/seo/schema";
@@ -23,15 +24,23 @@ import { siteConfig } from "@/lib/site";
 // Keep in step with REVALIDATE_SECONDS in lib/cache.ts.
 export const revalidate = 3600;
 
+// Search results cut titles near 60 characters and descriptions near 160, so the
+// home page carries purpose-written short versions. (siteConfig.description is
+// the long form, used for structured data.)
+const HOME_TITLE = "Himalayan Tour Packages & Homestays";
+const HOME_DESCRIPTION =
+  "Personal Himalayan journeys across Darjeeling, Sikkim, Kalimpong and the Dooars — curated tour packages, handpicked homestays and local guides.";
+
 const homeMetadata = pageMetadata({
-  title:
-    "Himalayan Tour Packages, Homestays & Destination Experts | Darjeeling, Sikkim & Dooars",
-  description: siteConfig.description,
+  title: HOME_TITLE,
+  description: HOME_DESCRIPTION,
   path: "/",
 });
 
 export const metadata: Metadata = {
   ...homeMetadata,
+  // `absolute` skips the "| Heaven on Earth" suffix, which would push it past 60.
+  title: { absolute: `${HOME_TITLE} | ${siteConfig.name}` },
   openGraph: {
     ...homeMetadata.openGraph,
     title: `${siteConfig.name} — ${siteConfig.tagline}`,
@@ -40,15 +49,16 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [data, trendingData] = await Promise.all([
+  const [data, trendingData, heroSlides] = await Promise.all([
     getHomeData(),
-    getTrendingData()
+    getTrendingData(),
+    getHeroSlides(),
   ]);
 
   return (
     <>
       <JsonLd id="home-jsonld" data={buildHomeGraph(data)} />
-      <Hero rating={data.rating} />
+      <Hero rating={data.rating} slides={heroSlides} />
       <RegionsSection regions={data.regions} />
       <TrendingSection data={trendingData} />
       <JourneysSection journeys={data.journeys} />

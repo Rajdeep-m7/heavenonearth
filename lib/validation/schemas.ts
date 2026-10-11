@@ -250,7 +250,7 @@ export const adminLogin = z.object({
 });
 
 export const uploadSignature = z.object({
-  folder: z.enum(["categories", "packages", "stays", "rooms", "gallery", "reviews", "trending"]),
+  folder: z.enum(["categories", "packages", "stays", "rooms", "gallery", "reviews", "trending", "hero", "offers"]),
 });
 
 /** 12+ characters everywhere a password is set — matches scripts/seed.ts and scripts/add-admin.ts. */
@@ -286,6 +286,68 @@ export const trendingCreate = z.object({
 });
 
 export const trendingUpdate = toUpdate(trendingCreate);
+
+/* ------------------------------------------------------------------ */
+/* Hero slider + offer popup                                           */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Where a button may point: a path on this site or an http(s) URL. Anything
+ * else — `javascript:` above all — is rejected, since these hrefs are rendered
+ * into public pages. Empty means "no button".
+ */
+const linkTarget = z
+  .string()
+  .max(300)
+  .refine((value) => value === "" || /^(\/(?!\/)|https?:\/\/)/.test(value), {
+    message: "Use a path like /packages or a full https:// link",
+  });
+
+export const heroSlideCreate = z.object({
+  image: cloudinaryImage,
+  headline: z.string().min(3, "At least 3 characters").max(90),
+  subheading: z.string().max(60).default(""),
+  ctaLabel: z.string().max(40).default(""),
+  ctaHref: linkTarget.default(""),
+  order: z.number().int().default(0),
+  isActive: z.boolean().default(true),
+});
+
+export const heroSlideUpdate = toUpdate(heroSlideCreate);
+
+export const heroReorder = z.object({
+  order: z.array(objectId).min(1).max(20),
+});
+
+/** Full document, not a patch — the admin form always submits every field. */
+export const offerPopupSave = z
+  .object({
+    isActive: z.boolean(),
+    badge: z.string().max(40).default(""),
+    title: z.string().max(90).default(""),
+    description: z.string().max(400).default(""),
+    image: cloudinaryImage.nullable().default(null),
+    couponCode: z.string().max(30).default(""),
+    ctaLabel: z.string().max(40).default(""),
+    ctaHref: linkTarget.default(""),
+    showOn: z.enum(["home", "all"]).default("home"),
+    frequency: z.enum(["visit", "session", "day"]).default("session"),
+    delaySeconds: z.number().int().min(0).max(30).default(2),
+    startsAt: z.coerce.date().nullable().default(null),
+    endsAt: z.coerce.date().nullable().default(null),
+  })
+  .refine((value) => !value.isActive || value.title.trim().length >= 3, {
+    message: "A title is needed before the popup can go live",
+    path: ["title"],
+  })
+  .refine((value) => !value.ctaLabel || value.ctaHref, {
+    message: "Add a link for the button",
+    path: ["ctaHref"],
+  })
+  .refine((value) => !value.startsAt || !value.endsAt || value.endsAt > value.startsAt, {
+    message: "End must be after the start",
+    path: ["endsAt"],
+  });
 
 /* ------------------------------------------------------------------ */
 /* Shared list query                                                   */

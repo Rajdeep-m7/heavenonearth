@@ -9,6 +9,8 @@ import { api } from "@/lib/admin/api";
 
 const NAV = [
   { href: "/admin", label: "Dashboard", exact: true },
+  { href: "/admin/hero", label: "Hero banner" },
+  { href: "/admin/offer", label: "Offer popup" },
   { href: "/admin/categories", label: "Master packages" },
   { href: "/admin/packages", label: "Packages" },
   { href: "/admin/stays", label: "Room stays" },

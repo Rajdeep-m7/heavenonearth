@@ -17,7 +17,7 @@ export type AdminImage = {
 const MAX_BYTES = 10 * 1024 * 1024;
 
 type Props = {
-  folder: "categories" | "packages" | "stays" | "rooms" | "gallery" | "reviews" | "trending";
+  folder: "categories" | "packages" | "stays" | "rooms" | "gallery" | "reviews" | "trending" | "hero" | "offers";
   value: AdminImage | null;
   onChange: (image: AdminImage | null) => void;
   label?: string;
@@ -26,15 +26,103 @@ type Props = {
 };
 
 /** Preview works for both Cloudinary publicIds and local /images/... paths. */
-export function previewSrc(image: { publicId: string; url: string }, width = 400) {
+export function previewSrc(image: { publicId: string; url: string }, width = 600) {
   if (image.publicId.startsWith("/") || image.publicId.startsWith("http")) {
+    if (image.publicId.includes("images.unsplash.com")) {
+      try {
+        const u = new URL(image.publicId);
+        u.searchParams.set("w", "1200");
+        u.searchParams.set("q", "85");
+        u.searchParams.set("auto", "format");
+        u.searchParams.set("fit", "crop");
+        return u.toString();
+      } catch {
+        return image.publicId;
+      }
+    }
     return image.publicId;
   }
   const cloud = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   return cloud
-    ? `https://res.cloudinary.com/${cloud}/image/upload/f_auto,q_auto,w_${width},c_limit/${image.publicId}`
+    ? `https://res.cloudinary.com/${cloud}/image/upload/f_auto,q_auto:best,dpr_auto,w_${Math.max(width * 2, 800)},c_limit/${image.publicId}`
     : image.url;
 }
+
+export const FOLDER_RATIO_CONFIG: Record<
+  Props["folder"],
+  {
+    ratio: string;
+    shape: string;
+    dimensions: string;
+    /** Below this width the photo is stretched on retina screens and looks soft. */
+    minWidth: number;
+    containerClass: string;
+  }
+> = {
+  hero: {
+    ratio: "16 : 9",
+    shape: "Wide Landscape",
+    dimensions: "2400 × 1350 (keep the subject left-of-centre, text sits on the left)",
+    minWidth: 1920,
+    containerClass: "w-full max-w-sm aspect-video rounded-xl",
+  },
+  offers: {
+    ratio: "3 : 2",
+    shape: "Landscape",
+    dimensions: "1200 × 800",
+    minWidth: 900,
+    containerClass: "w-48 aspect-[3/2] rounded-xl",
+  },
+  trending: {
+    ratio: "290 : 421 (~2:3)",
+    shape: "Portrait Arch",
+    dimensions: "600 × 870 or 1200 × 1740",
+    minWidth: 600,
+    containerClass: "w-32 aspect-[290/421] rounded-2xl",
+  },
+  gallery: {
+    ratio: "4 : 5",
+    shape: "Portrait",
+    dimensions: "800 × 1000 or 1200 × 1500",
+    minWidth: 800,
+    containerClass: "w-32 aspect-[4/5] rounded-xl",
+  },
+  packages: {
+    ratio: "4 : 3",
+    shape: "Landscape",
+    dimensions: "1200 × 900",
+    minWidth: 1200,
+    containerClass: "w-44 aspect-[4/3] rounded-xl",
+  },
+  stays: {
+    ratio: "4 : 3",
+    shape: "Landscape",
+    dimensions: "1200 × 900",
+    minWidth: 1200,
+    containerClass: "w-44 aspect-[4/3] rounded-xl",
+  },
+  categories: {
+    ratio: "4 : 3",
+    shape: "Landscape",
+    dimensions: "1200 × 900",
+    minWidth: 1200,
+    containerClass: "w-44 aspect-[4/3] rounded-xl",
+  },
+  rooms: {
+    ratio: "4 : 3",
+    shape: "Landscape",
+    dimensions: "1200 × 900",
+    minWidth: 1200,
+    containerClass: "w-44 aspect-[4/3] rounded-xl",
+  },
+  reviews: {
+    ratio: "1 : 1",
+    shape: "Square Avatar",
+    dimensions: "400 × 400",
+    minWidth: 200,
+    containerClass: "w-28 aspect-square rounded-full",
+  },
+};
 
 export function ImageUploader({
   folder,
@@ -46,6 +134,14 @@ export function ImageUploader({
   const toast = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
   const [progress, setProgress] = useState<number | null>(null);
+
+  const ratioConfig = FOLDER_RATIO_CONFIG[folder] ?? {
+    ratio: "4 : 3",
+    shape: "Landscape",
+    dimensions: "1200 × 900",
+    minWidth: 1200,
+    containerClass: "w-44 aspect-[4/3] rounded-xl",
+  };
 
   const pick = async (file: File) => {
     if (!file.type.startsWith("image/")) {
@@ -85,10 +181,17 @@ export function ImageUploader({
 
   return (
     <div>
-      <p className="text-[13px] font-semibold text-ink">{label}</p>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-[13px] font-semibold text-ink">{label}</p>
+        <span className="inline-flex items-center gap-1 rounded-full bg-teal/10 px-2.5 py-0.5 text-[11px] font-medium text-teal-deep">
+          <span className="font-semibold">Format:</span> {ratioConfig.ratio} ({ratioConfig.shape})
+        </span>
+      </div>
 
-      <div className="mt-1.5 flex flex-col gap-3 sm:flex-row sm:items-start">
-        <div className="relative grid h-32 w-full shrink-0 place-items-center overflow-hidden rounded-xl border border-dashed border-black/15 bg-black/[0.02] sm:w-48">
+      <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-start">
+        <div
+          className={`relative grid shrink-0 place-items-center overflow-hidden border border-dashed border-black/15 bg-black/[0.02] ${ratioConfig.containerClass}`}
+        >
           {value ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -97,9 +200,14 @@ export function ImageUploader({
               className="size-full object-cover"
             />
           ) : (
-            <span className="px-3 text-center text-[12px] text-slate">
-              No image yet
-            </span>
+            <div className="flex flex-col items-center gap-1 p-2 text-center">
+              <span className="text-[11px] font-medium text-slate">
+                No image yet
+              </span>
+              <span className="text-[10px] text-slate/75">
+                {ratioConfig.ratio}
+              </span>
+            </div>
           )}
 
           {progress !== null && (
@@ -172,8 +280,18 @@ export function ImageUploader({
             </div>
           )}
 
+          {value && value.width < ratioConfig.minWidth && (
+            <p
+              role="status"
+              className="rounded-lg bg-amber-50 px-3 py-2 text-[12px] font-medium text-amber-800"
+            >
+              This image is only {value.width}px wide. It will look soft on large or
+              high-density screens — upload one at least {ratioConfig.minWidth}px wide.
+            </p>
+          )}
+
           <p className="text-[12px] text-slate">
-            JPG, PNG or WebP up to 10 MB. Uploads go straight to Cloudinary.
+            Recommended: <strong className="font-semibold text-charcoal">{ratioConfig.ratio} ({ratioConfig.shape})</strong> · {ratioConfig.dimensions}. JPG, PNG or WebP up to 10 MB.
           </p>
         </div>
       </div>
@@ -229,10 +347,18 @@ export function ImageListUploader({
     }
   };
 
+  const listRatio = folder === "packages" ? "1 : 1 (Square)" : "4 : 3 (Landscape)";
+  const imgAspectClass = folder === "packages" ? "aspect-square" : "aspect-[4/3]";
+
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <p className="text-[13px] font-semibold text-ink">{label}</p>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <p className="text-[13px] font-semibold text-ink">{label}</p>
+          <span className="inline-flex items-center gap-1 rounded-full bg-teal/10 px-2.5 py-0.5 text-[11px] font-medium text-teal-deep">
+            <span className="font-semibold">Format:</span> {listRatio}
+          </span>
+        </div>
         <Button
           type="button"
           variant="secondary"
@@ -257,20 +383,20 @@ export function ImageListUploader({
 
       {value.length === 0 ? (
         <p className="mt-2 rounded-xl border border-dashed border-black/15 px-4 py-6 text-center text-[13px] text-slate">
-          No extra images yet.
+          No extra images yet. Recommended: {listRatio}.
         </p>
       ) : (
         <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
           {value.map((image, index) => (
             <li
               key={image.publicId}
-              className="overflow-hidden rounded-xl border border-black/10"
+              className="overflow-hidden rounded-xl border border-black/10 bg-white"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={previewSrc(image, 300)}
                 alt={image.alt || ""}
-                className="h-24 w-full object-cover"
+                className={`${imgAspectClass} w-full object-cover`}
               />
               <div className="space-y-1.5 p-2">
                 <Input

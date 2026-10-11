@@ -7,6 +7,8 @@
 export { Admin, type AdminDoc } from "./Admin";
 export { Category, type CategoryDoc } from "./Category";
 export { GalleryItem, type GalleryItemDoc } from "./GalleryItem";
+export { HeroSlide, type HeroSlideDoc } from "./HeroSlide";
+export { OfferPopup, type OfferPopupDoc } from "./OfferPopup";
 export { Package, type PackageDoc } from "./Package";
 export { Review, type ReviewDoc, aggregateRating } from "./Review";
 export { Room, type RoomDoc, syncStayPriceFrom } from "./Room";
