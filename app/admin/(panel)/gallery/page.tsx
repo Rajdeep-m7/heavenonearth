@@ -154,7 +154,7 @@ export default function GalleryPage() {
     <div className="space-y-8">
       <PageHeader
         title="Gallery"
-        description="Photos for the public gallery page. Add alt text so they earn their place in search."
+        description="Public gallery photos. Upload in 4:5 portrait format (e.g. 800 × 1000) to match the website layout."
         action={
           <div className="flex gap-2">
             {selected.size > 0 && (
@@ -314,12 +314,12 @@ function GalleryCard({
   return (
     <li>
       <Card className="overflow-hidden">
-        <div className="relative">
+        <div className="relative aspect-[4/5] overflow-hidden bg-black/[0.04]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={previewSrc(row.image, 500)}
             alt={row.image.alt || ""}
-            className="h-40 w-full object-cover"
+            className="size-full object-cover"
           />
           <label className="absolute left-3 top-3 flex cursor-pointer items-center gap-2 rounded-full bg-white/95 px-3 py-1.5 text-[12px] font-medium shadow">
             <input
@@ -330,6 +330,9 @@ function GalleryCard({
             />
             Select
           </label>
+          <span className="absolute bottom-2.5 right-2.5 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur-sm">
+            4:5 Portrait
+          </span>
           {!row.isActive && (
             <span className="absolute right-3 top-3">
               <Badge tone="danger">Hidden</Badge>

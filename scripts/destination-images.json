@@ -1,0 +1,326 @@
+{
+ "categories": {
+  "Darjeeling": "1721070025492-26368db1706f",
+  "Sikkim": "1652787639646-1f4a8070de8c",
+  "Dooars": "1787741188520-6de306d9d1d3",
+  "Thailand": "1664542777435-be75eb20ecd5",
+  "Vietnam": "1643029891412-92f9a81a8c16",
+  "Sri Lanka": "1580794749460-76f97b7180d8",
+  "UAE": "1512453979798-5ea266f8880c",
+  "Nepal": "1553886334-43d24f24d3bd",
+  "Bhutan": "1553351234-d0eb4feecb93",
+  "Andaman": "1586359716568-3e1907e4cf9f",
+  "Kerala": "1593417033942-bcdf26b74700",
+  "Puducherry": "1597073642928-48c0971f7ded",
+  "Kalimpong": "1584043204475-8cc101d6c77a",
+  "Delhi": "1587474260584-136574528ed5",
+  "Punjab": "1651910031161-7c75098bce75",
+  "Goa": "1614082242765-7c98ca0f3df3",
+  "Himachal Pradesh": "1641310045101-fd176a42cd44",
+  "Uttarakhand": "1609175515376-01cbdb14a1f0",
+  "Assam": "1615472910606-9d4f7291944f",
+  "West Bengal": "1651651166379-06540f274707",
+  "Uttar Pradesh": "1564507592333-c60657eea523",
+  "Jammu & Kashmir": "1595815771614-ade9d652a65d",
+  "Karnataka": "1642516863984-68fdeea5ba64",
+  "Tamil Nadu": "1692173248120-59547c3d4653",
+  "Andhra Pradesh": "1609854534028-b512f5246abc",
+  "Telangana": "1750834115164-8c2658f18dd0",
+  "Odisha": "1682703175805-58d01a7039a7",
+  "Madhya Pradesh": "1606298855672-3efb63017be8",
+  "Maharashtra": "1595658658481-d53d3f999875"
+ },
+ "trending": {
+  "Thailand": "1582468546235-9bf31e5bc4a1",
+  "Vietnam": "1604323990536-e5452c0507c1",
+  "Phuket": "1483683804023-6ccdb62f86ef",
+  "Sri Lanka": "1569670380685-4582bf29a24a",
+  "UAE & Dubai": "1546412414-e1885259563a",
+  "Dubai": "1634007626524-f47fa37810a7",
+  "Nepal": "1529733905113-027ed85d7e33",
+  "Bhutan": "1709718717736-d1196f47b7fc",
+  "Andaman": "1554092917-15b3e3f9e85a",
+  "Kerala": "1661174607003-d9d36388c916",
+  "Darjeeling": "1603755962670-a6f92be76d5e",
+  "Gangtok": "1615966192539-f1731963b19a",
+  "Varanasi": "1705952484113-b0d7f41f28d8",
+  "J & K": "1632231065530-f5fd55c62846",
+  "Manali": "1594102552386-793e5a27ad10",
+  "Goa": "1582972236019-ea4af5ffe587",
+  "Sikkim": "1685426806959-bbbbbb28282d",
+  "Himachal Pradesh": "1653844573020-71f77a0ccb8c",
+  "Kashmir": "1531400158697-004a3a06fd3f"
+ },
+ "packages": {
+  "Darjeeling Tea & Mountain Escape": [
+   "1709116468266-031ce068e468",
+   "1660566587182-ca53e9ed9053",
+   "1584878549510-56029e4fa927"
+  ],
+  "Sikkim Mountain Journey": [
+   "1730398202943-e515d20b4321",
+   "1697561832430-daebcb737292",
+   "1634308670152-17f7f1aa4e79"
+  ],
+  "Exotic Thailand & Coral Islands Getaway": [
+   "1604261711226-74963a223799",
+   "1542370512244-4a99a9ab9e28",
+   "1676220022985-f8de09546464"
+  ],
+  "Splendours of Vietnam: Hanoi to Ha Long Bay": [
+   "1625396836163-80c0d3d7eb86",
+   "1611195328596-d8dcf57f5cea",
+   "1733372607228-6aeaa92c5e62"
+  ],
+  "Phuket Tropical Paradise & Phi Phi Islands": [
+   "1673627114937-ca220aad736d",
+   "1735797689090-bfe5ed4ccde7",
+   "1687842542880-0f42a42f89a9",
+   "1682517164517-90f56a89743b"
+  ],
+  "Wonders of Ceylon: Kandy, Nuwara Eliya & Bentota": [
+   "1760533852055-724d3a50dcbd",
+   "1665849050332-8d5d7e59afb6",
+   "1706256840752-c9444038ac3b",
+   "1705365291453-7962869cae67"
+  ],
+  "Grand UAE Experience: Dubai & Abu Dhabi": [
+   "1512970648279-ff3398568f77",
+   "1649826585999-789d69f0fec7",
+   "1682410601760-6372fd33ad2b",
+   "1624664929067-5bc278a7c57e"
+  ],
+  "Glitz & Glamour of Dubai": [
+   "1583759604327-f9dcd23499d5",
+   "1708361089093-beef4c4584e7",
+   "1605461659470-4536815b7c98",
+   "1682410601904-24ec1d9858e6"
+  ],
+  "Himalayan Highlights: Kathmandu & Pokhara": [
+   "1735533441842-33c5e47b22ae",
+   "1709947509418-187ad0a4a991",
+   "1608485183416-10fba0cccd91",
+   "1671181366687-47530c4dbe4b"
+  ],
+  "Enchanting Bhutan: Thimphu, Punakha & Paro": [
+   "1608236475087-615bfbcdf772",
+   "1583422149284-36b2b380b87d",
+   "1761048163664-0d3b52141114",
+   "1772702812433-ffc2aa5e4318"
+  ],
+  "Exotic Andaman & Havelock Island Odyssey": [
+   "1599325601183-042bed55081c",
+   "1731934280559-550b9eeee02e"
+  ],
+  "Coastal Charm: Vizag & Araku Valley": [
+   "1717585163315-02e3f0a96584",
+   "1710401202340-e664147fa46a",
+   "1740838133926-8ffc0d1a2f20"
+  ],
+  "Queen of the Hills: Ooty & Coonoor Escape": [
+   "1654099602420-c90791787b79",
+   "1683863655647-b37baeb9fd99"
+  ],
+  "Glimpse of God's Own Country: Munnar & Alleppey": [
+   "1711192702535-eac61a78ecb0",
+   "1593693411515-c20261bcad6e",
+   "1593693401060-9fc28cf9e368",
+   "1615289139857-99b7eb0702dd"
+  ],
+  "Misty Munnar Tea Trails & Wildlife": [
+   "1777532996520-ed3d06cb2198",
+   "1574423886860-a27bb1814f28",
+   "1742286087579-fcaa5ed24c35",
+   "1696027356970-b1527cc0d33c"
+  ],
+  "French Riviera of the East: Pondicherry & Auroville": [
+   "1588623598822-9ff0cd048b8a",
+   "1598792598750-1f0dc619e6a2",
+   "1677951221673-09be408d2ddf",
+   "1606921916293-8a5ef606c20c"
+  ],
+  "Royal Heritage of Mysore & Srirangapatna": [
+   "1657856855186-7cf4909a4f78",
+   "1678447616258-7075372b9db0",
+   "1665376620694-fc0c4bab7294"
+  ],
+  "City of Pearls: Hyderabad & Golconda Heritage": [
+   "1568484085354-4e6149a3e658",
+   "1591786621837-65823ced96f8",
+   "1667974442448-950dab8fbd82"
+  ],
+  "Alleppey Backwater Cruise & Marari Beach Haven": [
+   "1593693397690-362cb9666fc2",
+   "1528034342377-c406327f14b7",
+   "1706477459847-0a19a73fc89d"
+  ],
+  "Divya Darshan: Tirupati Balaji Pilgrimage": [
+   "1741003412854-bd4b264c4af3"
+  ],
+  "Echoes of an Empire: Hampi Heritage Trail": [
+   "1725552331734-cd010e86962f",
+   "1722934804353-0d9f6a55ab5e",
+   "1620987327429-2ff481733060"
+  ],
+  "Sacred Shores: Puri, Konark & Chilika Lake": [
+   "1677211352662-30e7775c7ce8",
+   "1706790574525-d218c4c52b5c",
+   "1633530541201-139b32fa4ffa"
+  ],
+  "Mandarmani Seaside Weekend Retreat": [
+   "1633714972458-5c968de4bb19",
+   "1709623244452-f690c1fc8f2f",
+   "1665571282680-3ba75f9f2584",
+   "1717177724724-075c564922b0"
+  ],
+  "Digha & Udaipur Beach Coastal Break": [
+   "1656610752363-89ea6ea8ff7f",
+   "1675772120474-b9d7811220f9",
+   "1589901164570-f9de6556e1c1"
+  ],
+  "Hidden Hamlets: Lamahatta, Tinchuley & Chatakpur": [
+   "1549817997-f6958ecf47b9",
+   "1646076949271-bd7384eca1ef"
+  ],
+  "Kalimpong Ridge & Valley Retreat": [
+   "1632754226672-2b74ca9caf1d",
+   "1755423996730-e492ad9349c0"
+  ],
+  "Wilderness Triangle: Lava, Rishyap & Lolegaon": [
+   "1620827195512-6422baa0c5a1"
+  ],
+  "Jewel of Sikkim: Gangtok & Tsomgo Lake": [
+   "1648113821624-244c6c1baf54",
+   "1689343075610-aa77066f3df5"
+  ],
+  "Expedition North Sikkim: Lachen, Lachung & Gurudongmar": [
+   "1600402808924-9c591a6dace8",
+   "1748073767634-2213c2ce2d1b",
+   "1697999151917-5334d9d9de15",
+   "1708583202861-c9aa69cd42aa"
+  ],
+  "Serenity of South Sikkim: Namchi & Ravangla": [
+   "1651856746768-2997d24d029e",
+   "1566109973814-e4aaef3f2b51",
+   "1718696070605-db38369c5629",
+   "1634827181140-6ed3520f57c4"
+  ],
+  "Gateway to Assam: Guwahati & Brahmaputra Charms": [
+   "1562315921-ca0e98571219"
+  ],
+  "Divine Blessings: Maa Kamakhya Pilgrimage Tour": [
+   "1594803205835-d121cb46e518",
+   "1654018590176-6f869b2cafff"
+  ],
+  "Wild Kaziranga: Rhinos & Grasslands Safari": [
+   "1687859142186-bb7c14084981",
+   "1581852017103-68ac65514cf7",
+   "1768622168969-4305586153a9",
+   "1465471765877-2e7a264830d5"
+  ],
+  "Dooars Wildlife Trail: Jaldapara & Chilapata": [
+   "1762298472132-b22685b739e3",
+   "1787214158806-7b47e2dfe7b4",
+   "1782274868730-afd0e57a86f3"
+  ],
+  "Splendour of the Scindias: Gwalior Fort & Palaces": [
+   "1643269877099-ea5393b80320"
+  ],
+  "Wild Satpura: River Safaris & Leopard Trails": [
+   "1655001123859-d40bfb53d35b",
+   "1506108928571-9f4b11ba3f10",
+   "1611845640336-a000f4ee1670",
+   "1640420554476-3d6d495cf5fa"
+  ],
+  "Nawabi Murshidabad: Hazarduari & Lalbag Heritage": [
+   "1579429223126-29d2f6f9c1ac"
+  ],
+  "Capitals of Empires: Old & New Delhi Heritage": [
+   "1586183189334-1ad3cd238e21",
+   "1685790582503-1b2762d95407",
+   "1637072286312-e81f3fa0bbd2",
+   "1748500192752-6f3f441c2a51"
+  ],
+  "Mughal Splendour: Taj Mahal & Agra Fort": [
+   "1612810436541-336b73fbcf9f",
+   "1524492412937-b28074a5d7da",
+   "1741788329599-78a29dc9286b",
+   "1576487248805-cf45f6bcc67f"
+  ],
+  "Mystical Kashi: Varanasi & Sarnath Spiritual Trail": [
+   "1564509027875-ba1c00cf09c1",
+   "1706186924707-d2acc3bd979a",
+   "1652288156243-a7505dcaa0ec",
+   "1726266140487-39c194e3af48"
+  ],
+  "Braj Bhoomi Pilgrimage: Vrindavan & Mathura": [
+   "1697528556914-5b2e767bbb5f",
+   "1681508401397-10f7504c4a05"
+  ],
+  "Taj Mahal Golden Dawn & Fatehpur Sikri": [
+   "1587135941948-670b381f08ce",
+   "1741671090624-deab68acf019",
+   "1506462945848-ac8ea6f609cc"
+  ],
+  "Heaven on Earth: Kashmir Valley & Gulmarg Snow": [
+   "1649794759593-ad80231b7b7c",
+   "1569852837213-00d97a707a83",
+   "1643449416258-5c8e7ec598b1"
+  ],
+  "Shimla & Kufri Colonial Hill Holiday": [
+   "1597074866923-dc0589150358",
+   "1669356243651-3889fea47f44",
+   "1624083373590-6170f2111b54"
+  ],
+  "Valley of the Gods: Kullu & Naggar Castle": [
+   "1597167231350-d057a45dc868",
+   "1718781941583-26f4653cc6cb"
+  ],
+  "Manali Snow Adventure & Solang Valley": [
+   "1677820915325-d8ce3184c2a4",
+   "1660308421609-02df8b6c892f",
+   "1636848500040-d00d8ddc70d9"
+  ],
+  "Lakes & Ridges: Nainital & Bhimtal Getaway": [
+   "1667029838861-2fe3a590a1d2",
+   "1656828059867-3fb503eb2214",
+   "1791140689926-891e59c4772a"
+  ],
+  "Mini Switzerland of India: Dalhousie & Khajjiar": [
+   "1589702413183-ca141958b7c5",
+   "1787937710893-8504ad365cbd",
+   "1599670784380-998a2f3547bf"
+  ],
+  "Sacred Chardham Yatra: Kedarnath & Badrinath": [
+   "1623952146070-f13fc902f769",
+   "1735817984411-af719b6836c0"
+  ],
+  "Parvati Valley Magic: Kasol, Tosh & Manikaran": [
+   "1617822056294-f73a3a6e1bce",
+   "1652379379235-652d2a6d65e8"
+  ],
+  "Spiritual Amritsar: Golden Temple & Wagah Border": [
+   "1517427677506-ade074eb1432",
+   "1583821017783-4333717df070",
+   "1789409502774-67eb334f0403",
+   "1609947017136-9daf32a5eb16"
+  ],
+  "Maximum City: Mumbai Heritage & Marine Drive": [
+   "1582477795644-d2b3348c0e75",
+   "1569758267239-d08deb78bb1a",
+   "1710838182226-8646b6949a2d",
+   "1710582308582-55cc0c461c4e"
+  ],
+  "Sunny Shores: North & South Goa Extravaganza": [
+   "1652820330085-82a0c2b88d78",
+   "1694931537879-23b9b4b68aea",
+   "1727193119592-b1a1201b84ce",
+   "1702799464761-29b1200c9549"
+  ],
+  "City of Joy: Kolkata Heritage & Cultural Trail": [
+   "1663948050994-4a966ad0a857",
+   "1742325646212-f917ba1feeaa",
+   "1723266623028-ff189f7970c9"
+  ]
+ }
+}

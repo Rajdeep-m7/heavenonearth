@@ -163,7 +163,7 @@ export function StayEditor({ initial }: { initial: StayDraft }) {
       <form onSubmit={save} className="space-y-8">
         <PageHeader
           title={draft._id ? "Edit stay" : "New stay"}
-          description="Properties shown under “Stay Like You Belong Here”."
+          description="Properties shown under “Stay Like You Belong Here”. Cover image displays in 4:3 landscape."
           action={
             <div className="flex gap-2">
               <Button

@@ -165,7 +165,7 @@ export function PackageEditor({ initial }: { initial: PackageDraft }) {
     <form onSubmit={save} className="space-y-8">
       <PageHeader
         title={draft._id ? "Edit package" : "New package"}
-        description="Curated journeys shown under “Journeys Made For You”."
+        description="Curated journeys shown under “Journeys Made For You”. Cover image displays in 4:3 landscape."
         action={
           <div className="flex gap-2">
             <Button

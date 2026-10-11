@@ -11,3 +11,6 @@
 next-env.d.ts
 node_modules
 out
+
+# DB backups written by scripts/fix-destination-images.ts
+scripts/.backups/

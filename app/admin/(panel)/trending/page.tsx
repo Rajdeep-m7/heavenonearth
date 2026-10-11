@@ -38,7 +38,7 @@ export default function TrendingPage() {
     <div className="space-y-8">
       <PageHeader
         title="Trending Destinations"
-        description="Manage the destinations that appear in the trending tabs on the home page."
+        description="Destinations for the home page trending rail. Upload in 290 × 421 portrait arch format."
         action={
           <Button onClick={() => setIsCreating(true)} disabled={isCreating}>
             Add Destination

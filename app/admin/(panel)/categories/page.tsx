@@ -156,7 +156,7 @@ export default function CategoriesPage() {
     <div className="space-y-8">
       <PageHeader
         title="Master packages"
-        description="The top-level groupings — Hill, Sea, Forest — that every package and stay belongs to."
+        description="The top-level groupings — Hill, Sea, Forest — that every package and stay belongs to. Cards display thumbnails in 4:3 landscape."
         action={<Button onClick={openCreate}>New master package</Button>}
       />
 
