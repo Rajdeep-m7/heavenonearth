@@ -8,7 +8,7 @@ import { siteConfig } from "@/lib/site";
 export const metadata: Metadata = pageMetadata({
   title: "Terms of Service",
   description:
-    `The terms that apply to using ${siteConfig.name}'s website.`,
+    `The terms and conditions that apply to using the ${siteConfig.legalName} website and travel services.`,
   path: "/terms-of-service",
 });
 

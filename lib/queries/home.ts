@@ -159,9 +159,12 @@ async function fetchHomeData(): Promise<HomeData> {
       .limit(6)
       .lean(),
 
-    Review.find({ status: "approved", isFeatured: true })
+    // Featured reviews lead, but any approved review qualifies: an admin who
+    // approves a review expects to see it on the home page, and requiring a
+    // separate "featured" flag left the section nearly empty.
+    Review.find({ status: "approved" })
       .select("author quote trip rating avatar publishedAt createdAt")
-      .sort({ publishedAt: -1 })
+      .sort({ isFeatured: -1, publishedAt: -1 })
       .limit(8)
       .lean(),
 

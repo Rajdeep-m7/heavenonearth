@@ -81,7 +81,7 @@ export function TrendingSection({ data }: { data: TrendingData }) {
             {data[panelId].map((destination, index) => (
               <Link
                 key={`${panelId}-${destination.slug}`}
-                href={`/destinations/${destination.slug}`}
+                href={destination.href}
                 className="group relative w-[min(72vw,290px)] shrink-0 snap-start lg:w-[calc((100%-6rem)/4)]"
               >
                 <Reveal delay={index * 90}>
